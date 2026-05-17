@@ -6,6 +6,12 @@ export const mockTransactions = [
     category: 'Salary',
     note: 'May paycheck',
     date: '2026-05-01',
+    isRecurring: true,
+    recurrenceFrequency: 'monthly',
+    recurrenceStartDate: '2026-05-01',
+    lastGeneratedDate: '2026-05-01',
+    nextOccurrenceDate: '2026-06-01',
+    recurringSeriesId: 'txn_001',
     createdAt: '2026-05-01T09:15:00.000Z'
   },
   {
@@ -15,6 +21,12 @@ export const mockTransactions = [
     category: 'Rent',
     note: 'Apartment rent',
     date: '2026-05-02',
+    isRecurring: true,
+    recurrenceFrequency: 'monthly',
+    recurrenceStartDate: '2026-05-02',
+    lastGeneratedDate: '2026-05-02',
+    nextOccurrenceDate: '2026-06-02',
+    recurringSeriesId: 'txn_002',
     createdAt: '2026-05-02T08:30:00.000Z'
   },
   {
@@ -33,6 +45,12 @@ export const mockTransactions = [
     category: 'Subscriptions',
     note: 'Music streaming',
     date: '2026-05-06',
+    isRecurring: true,
+    recurrenceFrequency: 'monthly',
+    recurrenceStartDate: '2026-05-06',
+    lastGeneratedDate: '2026-05-06',
+    nextOccurrenceDate: '2026-06-06',
+    recurringSeriesId: 'txn_004',
     createdAt: '2026-05-06T12:05:00.000Z'
   },
   {
