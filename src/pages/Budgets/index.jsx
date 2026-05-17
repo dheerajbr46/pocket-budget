@@ -45,12 +45,15 @@ export function Budgets({
 
   return (
     <div className="space-y-5">
-      <Card className="bg-ink text-white">
-        <p className="text-sm font-medium text-white/65">Monthly budget overview</p>
-        <p className="mt-2 text-4xl font-bold">{formatCurrency(budgetOverview.totalBudgeted, currency)}</p>
-        <p className="mt-2 text-sm text-white/65">Across {budgets.length} category goals</p>
-
-        <div className="mt-5 grid grid-cols-2 gap-2">
+      <Card className="relative overflow-hidden border-0 bg-gradient-ink text-white shadow-ink-glow">
+        <div className="pointer-events-none absolute -right-6 -top-6 h-52 w-52 rounded-full bg-mint/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 left-1/4 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="relative">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">Monthly overview</p>
+          <p className="mt-3 text-5xl font-bold tracking-tight">{formatCurrency(budgetOverview.totalBudgeted, currency)}</p>
+          <p className="mt-2 text-xs font-medium text-white/35">Across {budgets.length} category goal{budgets.length === 1 ? '' : 's'}</p>
+        </div>
+        <div className="relative mt-6 grid grid-cols-2 gap-2">
           <OverviewMetric label="Spent" value={formatCurrency(budgetOverview.totalSpent, currency)} />
           <OverviewMetric
             label={budgetOverview.totalRemaining < 0 ? 'Over by' : 'Remaining'}
@@ -61,7 +64,7 @@ export function Budgets({
 
       <Button
         onClick={handleNewBudget}
-        className="flex h-14 w-full items-center justify-center gap-2 rounded-3xl bg-mint text-base font-bold text-white shadow-lg shadow-teal-100"
+        className="flex h-14 w-full items-center justify-center gap-2 rounded-3xl bg-gradient-mint text-base font-bold text-white shadow-glow transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
       >
         <Plus size={20} />
         Add Budget Goal

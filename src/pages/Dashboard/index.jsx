@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { ArrowUpRight, CalendarClock, Plus, Repeat2 } from 'lucide-react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
@@ -35,14 +36,17 @@ export function Dashboard({
       <SuccessMessage message={saveMessage} />
       <FinancialHealthSummary insights={insights} />
 
-      <Card className="bg-ink text-white">
-        <div>
-          <p className="text-sm font-medium text-white/65">Total balance</p>
-          <p className="mt-2 text-4xl font-bold">{formatCurrency(summary.balance, currency)}</p>
-          <p className="mt-2 text-sm text-white/65">Saved locally in this browser</p>
+      {/* Hero balance card */}
+      <Card className="relative overflow-hidden border-0 bg-gradient-ink text-white shadow-ink-glow">
+        <div className="pointer-events-none absolute -right-6 -top-6 h-52 w-52 rounded-full bg-mint/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 left-1/4 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-1/3 h-24 w-24 rounded-full bg-coral/8 blur-2xl" />
+        <div className="relative">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">Total balance</p>
+          <p className="mt-3 text-5xl font-bold tracking-tight">{formatCurrency(summary.balance, currency)}</p>
+          <p className="mt-2 text-xs font-medium text-white/35">Stored locally · this browser</p>
         </div>
-
-        <div className="mt-5 grid grid-cols-3 gap-2">
+        <div className="relative mt-6 grid grid-cols-3 gap-2">
           <MiniMetric label="Today in" value={todaySummary.income} />
           <MiniMetric label="Today out" value={todaySummary.expenses} />
           <MiniMetric label="Today net" value={todaySummary.balance} />
@@ -51,7 +55,7 @@ export function Dashboard({
 
       <Button
         onClick={() => onNavigate('add')}
-        className="flex h-14 w-full items-center justify-center gap-2 rounded-3xl bg-mint text-base font-bold text-white shadow-lg shadow-teal-100"
+        className="flex h-14 w-full items-center justify-center gap-2 rounded-3xl bg-gradient-mint text-base font-bold text-white shadow-glow transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
       >
         <Plus size={20} />
         Add Transaction
@@ -63,7 +67,7 @@ export function Dashboard({
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Recurring</p>
             <h2 className="mt-1 text-lg font-bold">Upcoming</h2>
           </div>
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-teal-50 text-mint">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-mint text-white shadow-sm">
             <CalendarClock size={18} />
           </span>
         </div>
@@ -107,7 +111,7 @@ export function Dashboard({
               />
             ))
           ) : (
-            <p className="rounded-3xl bg-white px-4 py-5 text-sm font-semibold text-slate-500 shadow-sm">
+            <p className="rounded-3xl bg-white px-4 py-5 text-sm font-semibold text-slate-500 shadow-card">
               No transactions yet.
             </p>
           )}
@@ -125,9 +129,10 @@ export function Dashboard({
 
         {categorySpending.length > 0 ? (
           <div className="space-y-4">
-            {categorySpending.map((item) => (
+            {categorySpending.map((item, index) => (
               <CategoryBar
                 key={item.category}
+                index={index}
                 item={item}
                 monthSpending={monthSpending}
                 onSelect={onCategorySelect}
@@ -139,17 +144,12 @@ export function Dashboard({
             No spending recorded this month yet.
           </p>
         )}
-
-        {/* TODO: Add horizontal top-category cards for faster scanning. */}
       </Card>
 
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="This week" tone="coral" value={weekSpending} />
         <StatCard label="This month" tone="slate" value={monthSpending} />
       </div>
-
-      {/* Future extension: budget goals can surface here beside monthly progress. */}
-      {/* TODO: Add a compact dashboard mode for dense everyday check-ins. */}
     </div>
   );
 }
@@ -158,8 +158,8 @@ function MiniMetric({ label, value }) {
   const currency = useCurrency();
 
   return (
-    <div className="rounded-2xl bg-white/10 p-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/55">{label}</p>
+    <div className="rounded-2xl bg-white/8 p-3 backdrop-blur-sm">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/45">{label}</p>
       <p className="mt-2 truncate text-sm font-bold text-white">{formatCurrency(value, currency)}</p>
     </div>
   );
@@ -169,7 +169,7 @@ function UpcomingTimelineGroup({ group }) {
   return (
     <div className="relative pl-4">
       <span className="absolute left-0 top-1 h-full w-px bg-slate-200" />
-      <span className="absolute left-[-3px] top-1 h-2 w-2 rounded-full bg-mint" />
+      <span className="absolute left-[-3px] top-1 h-2 w-2 rounded-full bg-gradient-mint" />
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">{group.label}</p>
       <div className="space-y-2">
         {group.items.map((transaction) => (
@@ -217,9 +217,15 @@ function UpcomingTotal({ label, value }) {
   );
 }
 
-function CategoryBar({ item, monthSpending, onSelect }) {
+function CategoryBar({ index = 0, item, monthSpending, onSelect }) {
   const currency = useCurrency();
-  const width = `${Math.max(6, item.percentage)}%`;
+  const [animWidth, setAnimWidth] = useState('0%');
+  const targetWidth = `${Math.max(6, item.percentage)}%`;
+
+  useEffect(() => {
+    const id = setTimeout(() => setAnimWidth(targetWidth), 60 + index * 90);
+    return () => clearTimeout(id);
+  }, [targetWidth, index]);
 
   return (
     <button type="button" onClick={() => onSelect(item.category)} className={`block w-full rounded-2xl text-left ${pressableStyles}`}>
@@ -237,8 +243,11 @@ function CategoryBar({ item, monthSpending, onSelect }) {
           </p>
         </div>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full rounded-full bg-mint transition-all duration-700 ease-out" style={{ width }} />
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className="h-full rounded-full bg-gradient-mint transition-all duration-700 ease-out"
+          style={{ width: animWidth }}
+        />
       </div>
     </button>
   );

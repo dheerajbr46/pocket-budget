@@ -1,16 +1,16 @@
 import { AnimatedProgressBar } from './AnimatedProgressBar.jsx';
 
 export function BudgetProgressBar({ percentage, status }) {
-  const statusClasses = {
-    critical: 'bg-coral',
-    exceeded: 'bg-coral',
-    healthy: 'bg-mint',
-    warning: 'bg-amber-400'
+  const statusGradients = {
+    critical: 'bg-gradient-coral',
+    exceeded: 'bg-gradient-coral',
+    healthy: 'bg-gradient-mint',
+    warning: 'bg-gradient-to-r from-amber-400 to-orange-400'
   };
 
   return (
     <AnimatedProgressBar
-      className={statusClasses[status] ?? statusClasses.healthy}
+      className={statusGradients[status] ?? statusGradients.healthy}
       percentage={percentage}
       shouldPulse={status === 'critical' || status === 'exceeded'}
     />

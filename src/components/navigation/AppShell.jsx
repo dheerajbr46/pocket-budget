@@ -24,12 +24,17 @@ export function AppShell({ activePage, children, currentTitle, onNavigate }) {
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition ${
-                  isActive ? 'bg-ink text-white shadow-lg shadow-slate-300' : 'text-slate-500 hover:bg-slate-100'
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-ink text-white shadow-md shadow-slate-200/80'
+                    : 'text-slate-500 hover:bg-slate-100/80 hover:text-ink'
                 }`}
               >
-                <Icon size={20} strokeWidth={isActive ? 2.7 : 2.2} />
-                {item.title}
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="flex-1 text-left">{item.title}</span>
+                {isActive && (
+                  <span className="h-2 w-2 rounded-full bg-mint" />
+                )}
               </button>
             );
           })}
