@@ -37,7 +37,7 @@ export function Dashboard({
       <FinancialHealthSummary insights={insights} />
 
       {/* Hero balance card */}
-      <Card className="relative overflow-hidden border-0 bg-gradient-ink text-white shadow-ink-glow">
+      <Card className="relative overflow-hidden border-0 bg-gradient-hero text-white shadow-ink-glow">
         <div className="pointer-events-none absolute -right-6 -top-6 h-52 w-52 rounded-full bg-mint/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-8 left-1/4 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-1/3 h-24 w-24 rounded-full bg-coral/8 blur-2xl" />
@@ -55,7 +55,7 @@ export function Dashboard({
 
       <Button
         onClick={() => onNavigate('add')}
-        className="flex h-14 w-full items-center justify-center gap-2 rounded-3xl bg-gradient-mint text-base font-bold text-white shadow-glow transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
+        className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-indigo text-base font-bold text-white shadow-glow transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0"
       >
         <Plus size={20} />
         Add Transaction
@@ -67,7 +67,7 @@ export function Dashboard({
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Recurring</p>
             <h2 className="mt-1 text-lg font-bold">Upcoming</h2>
           </div>
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-mint text-white shadow-sm">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo/10 text-indigo">
             <CalendarClock size={18} />
           </span>
         </div>
@@ -245,7 +245,7 @@ function CategoryBar({ index = 0, item, monthSpending, onSelect }) {
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-gradient-mint transition-all duration-700 ease-out"
+          className="h-full rounded-full bg-indigo transition-all duration-700 ease-out"
           style={{ width: animWidth }}
         />
       </div>

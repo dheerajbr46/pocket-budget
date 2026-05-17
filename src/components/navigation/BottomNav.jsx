@@ -17,14 +17,14 @@ export function BottomNav({ activePage, onNavigate, forceMobile }) {
               key={item.id}
               onClick={() => onNavigate(item.id)}
               className={`flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-semibold transition-all duration-200 ${
-                isActive ? 'bg-ink text-white shadow-md shadow-slate-200/80' : 'text-slate-500 hover:bg-slate-100/80 hover:text-ink'
+                isActive ? 'bg-indigo text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100/80 hover:text-ink'
               }`}
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.title}
             >
               <div className="relative flex flex-col items-center gap-1">
                 {isActive && (
-                  <span className="absolute -top-2.5 h-1 w-5 rounded-full bg-mint" />
+                  <span className="absolute -top-2.5 h-1 w-5 rounded-full bg-indigo" />
                 )}
                 <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                 <span>{item.label}</span>

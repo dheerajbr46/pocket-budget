@@ -4,7 +4,7 @@ export function BudgetProgressBar({ percentage, status }) {
   const statusGradients = {
     critical: 'bg-gradient-coral',
     exceeded: 'bg-gradient-coral',
-    healthy: 'bg-gradient-mint',
+    healthy: 'bg-gradient-indigo',
     warning: 'bg-gradient-to-r from-amber-400 to-orange-400'
   };
 
