@@ -1,44 +1,37 @@
 # Pocket Budget
 
-Pocket Budget is a local-first personal budgeting web app built with React, Vite, Tailwind CSS, and LocalStorage. It is designed to feel like a polished mobile finance app: calm, fast, private, and useful without requiring an account or backend.
+Pocket Budget is a local-first personal budgeting web app built with React, Vite, Tailwind CSS, and LocalStorage. It is designed to feel like a polished fintech mobile app: calm, fast, private, and useful without requiring an account or backend.
 
-The product focuses on everyday money awareness: quick transaction entry, transaction management, budget goals, category drilldowns, recurring transactions, and lightweight rule-based smart insights.
+The product focuses on everyday money awareness: quick transaction entry, transaction management, budget goals, category drilldowns, recurring transactions, lightweight rule-based smart insights, and interactive spending charts.
 
 ## Features
 
-- Mobile-first app shell with bottom navigation
-- Dashboard with total balance, financial health, recent activity, upcoming recurring payments, top categories, and weekly/monthly analytics
+- Responsive layout: mobile phone-card on small screens, full sidebar layout on desktop; in-app toggle between modes
+- Dashboard with animated balance, 7-day spending chart, financial health summary, upcoming recurring payments, recent activity, and top category bars
 - Quick Add bottom sheet for fast transaction capture
 - Full Add Transaction flow with recurring transaction support
-- Transaction Center with search, filters, date ranges, friendly grouping, edit, and delete
-- LocalStorage persistence with invalid data handling
-- Reports with weekly/monthly summaries and category breakdowns
-- Category drilldowns with trends, summaries, and transaction history
-- Budget goals with health states, progress bars, and insights
+- Transaction Center with search, filters, date ranges, friendly grouping, inline edit, and delete
+- Reports with 30-day spending trend (area chart), weekly and monthly summaries, category donut charts, and breakdown bars
+- Category drilldowns with 30-day spending bar chart, trend card, and transaction history
+- Budget goals with horizontal utilization chart, health badges, progress bars, and insights
 - Rule-based Smart Insights with no AI or external API dependency
-- Settings with currency preference, JSON export/import, and data clearing
-
-## Screenshots
-
-Add screenshots here as the product evolves.
-
-- Dashboard
-- Quick Add
-- Transaction Center
-- Reports
-- Budgets
-- Settings
+- Settings with currency preference, JSON export, CSV export, JSON import, and data clearing
+- Dark mode following OS preference (`prefers-color-scheme`)
+- Installable PWA with offline caching and web manifest
 
 ## Tech Stack
 
-- React
+- React 18
 - Vite
-- Tailwind CSS
-- Lucide React icons
+- Tailwind CSS 3.4
+- Framer Motion 12 (animations, layout transitions, spring physics)
+- Recharts 3 (AreaChart, BarChart, PieChart)
+- Phosphor Icons
+- Plus Jakarta Sans Variable font
+- vite-plugin-pwa (service worker, web manifest)
 - Browser LocalStorage
 - No backend
 - No authentication
-- No ads
 - No external API integrations
 - No LLM or AI API calls
 
@@ -50,17 +43,19 @@ The app is organized for future growth rather than as a single demo file. UI, bu
 src/
   components/
     cards/          Reusable finance cards and transaction UI
+    charts/         Recharts chart components (trend, donut, bar)
     feedback/       Toasts, skeletons, success messages
     forms/          Transaction inputs and reusable form controls
     modals/         Budget and edit modal surfaces
     navigation/     App shell, header, bottom navigation
-    ui/             Base primitives such as Button, Card, EmptyState
-  constants/        Categories, transaction types, recurrence types, colors
-  context/          App-level context such as currency
-  data/             Mock starter data
+    ui/             Base primitives: Button, Card, EmptyState, Modal
+  constants/        Categories, transaction types, recurrence types, motion tokens
+  context/          CurrencyContext — app-wide currency setting
+  data/             Navigation config and mock starter data
   hooks/            Stateful feature hooks
-  pages/            Dashboard, Activity, Add Transaction, Reports, Settings
+  pages/            Dashboard, Activity, Add Transaction, Reports, Budgets, Settings, CategoryDetail
   services/         Transaction, recurring, budget, report, and insight services
+  styles/           Global CSS, keyframe animations, dark mode variables
   utils/            Currency, dates, recurrence, storage, reports, budgets, insights, transactions
 ```
 
@@ -68,7 +63,7 @@ src/
 
 Pocket Budget stores data in the browser using LocalStorage. This keeps the app fast, private, and easy to run locally.
 
-There is currently no backend because the app does not need one for its core experience. Transactions, budget goals, currency settings, and recurring transaction state are all handled locally. Export and import features provide basic data portability without creating an account.
+There is no backend because the app does not need one for its core experience. Transactions, budget goals, currency settings, and recurring transaction state are all handled locally. JSON and CSV export provide data portability without an account.
 
 ## Smart Insights
 
@@ -105,98 +100,73 @@ Generation lifecycle:
 4. Missing entries are generated with fresh ids, created timestamps, and `generatedFromRecurringId`.
 5. The resulting list is persisted back to LocalStorage and used by dashboard, reports, budgets, insights, and activity.
 
-To avoid runaway generation, the engine only creates entries inside a reasonable rolling future window and caps each series to a maximum number of generated occurrences per processing pass.
+Recurring transaction fields include `isRecurring`, `recurrenceFrequency`, `recurrenceStartDate`, `recurrenceEndDate`, `nextOccurrenceDate`, `lastGeneratedDate`, `generatedFromRecurringId`, and `recurringSeriesId`.
 
-Recurring transaction fields include:
+## Charts
 
-- `isRecurring`
-- `recurrenceFrequency`
-- `recurrenceStartDate`
-- `recurrenceEndDate`
-- `nextOccurrenceDate`
-- `lastGeneratedDate`
-- `generatedFromRecurringId`
-- `recurringSeriesId`
+All charts are built with Recharts and styled to match the app's fintech aesthetic:
 
-Generated transactions look like normal transactions in reports, budgets, and dashboards, but the detail sheet can identify them as auto-generated. This prepares the app for future editing modes such as "this occurrence only" or "entire series."
+| Component | Type | Location |
+|---|---|---|
+| `SpendingTrendChart` | AreaChart (30-day income vs expenses) | Reports |
+| `CategoryDonutChart` | PieChart donut with legend | Reports — each period section |
+| `WeeklyBarChart` | BarChart (7-day expenses) | Dashboard |
+| `BudgetComparisonChart` | Horizontal BarChart (% utilization) | Budgets |
+| `CategorySpendingChart` | BarChart (30-day category spending) | Category Detail |
 
-## Upcoming Timeline
+All charts include custom-styled tooltips, empty states, and responsive containers.
 
-The Dashboard includes an Upcoming timeline powered by the recurring service. It shows the next five recurring items grouped chronologically, with compact due-date labels, category context, frequency badges, and signed amounts. Weekly and monthly upcoming totals summarize near-term cash flow without turning the dashboard into a spreadsheet.
+## Dark Mode
 
-This is local-first automation: everything is calculated in the browser from local transaction data, with no server scheduler or external API.
+The app responds to `prefers-color-scheme: dark` automatically — no toggle required. Implementation uses:
+
+- CSS custom properties (`--color-ink`, `--color-paper`, `--app-bg`) that invert in dark mode
+- Tailwind `darkMode: 'media'` with `dark:` variants on structural surfaces (sidebar, nav, header, cards)
+
+## PWA
+
+The app is installable as a progressive web app on mobile and desktop. Built with `vite-plugin-pwa`:
+
+- Service worker with `generateSW` strategy precaches all assets
+- Web manifest with app name, theme colors, and display mode
+- `autoUpdate` registration — users get the latest version on next load
 
 ## How To Run Locally
 
-Install dependencies:
-
 ```bash
-npm install
+npm install        # Install dependencies
+npm run dev        # Start dev server
+npm run build      # Production build (also generates SW + manifest)
+npm run preview    # Preview production build locally
 ```
 
-Start the development server:
+## Design
 
-```bash
-npm run dev
-```
+Pocket Budget targets a premium fintech aesthetic — clean, legible, and fast:
 
-Build for production:
+- **Font**: Plus Jakarta Sans Variable
+- **Icons**: Phosphor Icons (weight="fill" for active states, "regular" for inactive)
+- **Animations**: Framer Motion — spring layout transitions in nav, page fades, count-up balance, staggered list entry
+- **Colors**: `indigo` (#4f46e5) · `mint` (#14b8a6) · `coral` (#fb7185) · `ink` (auto-inverts in dark mode)
+- **Motion**: respects `prefers-reduced-motion`
 
-```bash
-npm run build
-```
+## Why No Backend Or LLM
 
-Preview the production build:
+The current product goal is private, local-first budgeting. A backend adds account, sync, security, and hosting concerns before they are necessary. An LLM adds cost, privacy, and reliability tradeoffs for insights that can be generated with transparent local rules.
 
-```bash
-npm run preview
-```
-
-## Design Philosophy
-
-Pocket Budget is intentionally calm and compact. The UI favors:
-
-- Soft rounded cards
-- Clear hierarchy
-- Mobile-app-like navigation
-- Minimal visual noise
-- Fast one-tap entry
-- Friendly empty states
-- Subtle animation and feedback
-
-The app is designed to feel premium without becoming visually heavy.
-
-## Why No Backend Or LLM Yet
-
-The current product goal is private, local-first budgeting. A backend would add account, sync, security, and hosting concerns before they are necessary. An LLM would add cost, privacy, and reliability tradeoffs for insights that can currently be generated with transparent local rules.
-
-The architecture leaves room for both later, but the product is stronger today by staying simple and trustworthy.
+The architecture leaves room for both, but the product is stronger today by staying simple and trustworthy.
 
 ## Future Roadmap
 
-- PWA install support
 - Cloud sync as an optional user-controlled feature
 - Multi-device sync
-- CSV export/import
 - Recurring notifications
 - Recurring calendar view
-- Recurring forecasting
-- Recurring transaction edit modes
-- Merchant recognition
-- Merchant auto-categorization
-- Auto category detection
+- Recurring transaction edit modes (this occurrence vs entire series)
+- Merchant recognition and auto-categorization
 - Swipe actions for edit/delete
 - Shared expenses and Splitwise-style flows
-- Financial goals and savings goals
-- Daily financial score
-- Spending mood indicator
+- Financial goals and savings targets
+- Daily financial score and spending mood indicator
 - Personalized insight thresholds
-- Optional AI-generated explanations after a privacy-first settings layer exists
-
-## Scalability Ideas
-
-- Move LocalStorage behind a storage adapter for IndexedDB or cloud sync later
-- Add a transaction repository layer for richer querying
-- Expand the recurring series model for pause, skip-next, and series-wide editing
-- Add test coverage around recurrence date generation and financial summary utilities
-- Convert to a PWA with offline install, app icons, and native share/export flows
+- Optional AI-generated explanations behind a privacy-first settings layer
