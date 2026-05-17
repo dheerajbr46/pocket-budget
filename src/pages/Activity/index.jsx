@@ -419,7 +419,10 @@ function EditTransactionPanel({ onCancel, onSave, transaction }) {
         <input
           className="h-14 w-full rounded-2xl bg-slate-50 px-4 text-lg font-bold outline-none placeholder:text-slate-300"
           inputMode="decimal"
-          onChange={(event) => setAmount(event.target.value)}
+          onChange={(event) => {
+                const raw = event.target.value;
+                if (raw === '' || /^\d*\.?\d{0,2}$/.test(raw)) setAmount(raw);
+              }}
           placeholder="0.00"
           value={amount}
         />

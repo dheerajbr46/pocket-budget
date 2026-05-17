@@ -121,7 +121,10 @@ function QuickAmountInput({ error, inputRef, onChange, value }) {
             ref={inputRef}
             className="mt-1 w-full bg-transparent text-4xl font-bold outline-none placeholder:text-slate-300"
             inputMode="decimal"
-            onChange={(event) => onChange(event.target.value)}
+            onChange={(event) => {
+              const raw = event.target.value;
+              if (raw === '' || /^\d*\.?\d{0,2}$/.test(raw)) onChange(raw);
+            }}
             placeholder="0.00"
             type="text"
             value={value}
