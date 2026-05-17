@@ -1,7 +1,7 @@
-import { Bell, Search } from 'lucide-react';
+import { Bell, Monitor, Search, Smartphone } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
 
-export function Header({ title }) {
+export function Header({ title, forceMobile, onToggleView }) {
   return (
     <header className="flex items-center justify-between px-5 pb-3 pt-5">
       <div>
@@ -9,6 +9,14 @@ export function Header({ title }) {
         <h1 className="mt-1 text-2xl font-bold text-ink">{title}</h1>
       </div>
       <div className="flex items-center gap-2">
+        <Button
+          onClick={onToggleView}
+          className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-600 shadow-sm"
+          aria-label={forceMobile ? 'Switch to desktop view' : 'Switch to mobile view'}
+          title={forceMobile ? 'Switch to desktop view' : 'Switch to mobile view'}
+        >
+          {forceMobile ? <Monitor size={18} /> : <Smartphone size={18} />}
+        </Button>
         <Button
           className="grid h-10 w-10 place-items-center rounded-full bg-white text-slate-600 shadow-sm"
           aria-label="Search"

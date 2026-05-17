@@ -1,9 +1,9 @@
 import { navItems } from '../../data/navigation.js';
 import { Button } from '../ui/Button.jsx';
 
-export function BottomNav({ activePage, onNavigate }) {
+export function BottomNav({ activePage, onNavigate, forceMobile }) {
   return (
-    <nav className="border-t border-slate-200/80 bg-white/90 px-3 pb-5 pt-2 backdrop-blur">
+    <nav className={`border-t border-slate-200/80 bg-white/90 px-3 pb-5 pt-2 backdrop-blur ${forceMobile ? '' : 'lg:hidden'}`}>
       <div
         className="grid items-end gap-1"
         style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
