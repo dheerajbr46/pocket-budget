@@ -16,6 +16,7 @@ import { useBudgetGoals } from './hooks/useBudgetGoals.js';
 import { Budgets } from './pages/Budgets/index.jsx';
 import { getSmartInsights } from './services/insightService.js';
 import {
+  clearStoredCategoryLearning,
   getStoredCurrency,
   saveStoredCurrency
 } from './utils/storage/index.js';
@@ -116,6 +117,7 @@ export default function App() {
   function handleClearTransactions() {
     clearTransactions();
     clearBudgetGoals();
+    clearStoredCategoryLearning();
     setSaveMessage('All data cleared');
     setToastMessage('All data cleared');
     setActivePage('dashboard');

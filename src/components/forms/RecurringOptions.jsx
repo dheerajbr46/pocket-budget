@@ -2,13 +2,41 @@ import { ChevronDown, Repeat2 } from 'lucide-react';
 import { useState } from 'react';
 import { recurrenceOptions } from '../../constants/recurrenceTypes.js';
 import { motionVariants, pressableStyles, transitionPresets } from '../../constants/motion.js';
+import { formatShortDate } from '../../utils/formatting/index.js';
 import { getRecurrencePreviewText } from '../../utils/recurrence/index.js';
+import { InlineCalendarPicker } from './InlineCalendarPicker.jsx';
 
 function formatStartSummary(value) {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric'
   }).format(new Date(`${value}T00:00:00`));
+}
+
+function RecurringDateButton({ disabled = false, isActive, label, onClick, value }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={`rounded-2xl bg-white px-3 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-mint/40 ${
+        disabled ? 'cursor-not-allowed opacity-60' : pressableStyles
+      } ${isActive ? 'ring-2 ring-teal-100' : ''}`}
+    >
+      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+        {label}
+      </span>
+      <span className="mt-1 flex items-center justify-between gap-2 text-sm font-bold text-ink">
+        {value ? formatShortDate(value) : 'Select date'}
+        <ChevronDown
+          size={15}
+          className={`shrink-0 text-slate-400 transition-transform duration-200 motion-reduce:transition-none ${
+            isActive ? 'rotate-180' : ''
+          }`}
+        />
+      </span>
+    </button>
+  );
 }
 
 export function RecurringOptions({
@@ -24,6 +52,7 @@ export function RecurringOptions({
   startDate
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeCalendar, setActiveCalendar] = useState(null);
   const previewText = getRecurrencePreviewText({
     endDate,
     frequency,
@@ -36,6 +65,8 @@ export function RecurringOptions({
     0,
     recurrenceOptions.findIndex((option) => option.id === frequency)
   );
+  const activeCalendarValue = activeCalendar === 'start' ? startDate : endDate;
+  const activeCalendarChange = activeCalendar === 'start' ? onStartDateChange : onEndDateChange;
 
   return (
     <div className={`rounded-2xl bg-slate-50 p-3 ${transitionPresets.soft}`}>
@@ -57,6 +88,7 @@ export function RecurringOptions({
           onChange={(event) => {
             onRecurringChange(event.target.checked);
             setIsExpanded(false);
+            setActiveCalendar(null);
           }}
           type="checkbox"
         />
@@ -114,30 +146,35 @@ export function RecurringOptions({
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <label className={`rounded-2xl bg-white px-3 py-2.5 ${pressableStyles}`}>
-                  <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Starts
-                  </span>
-                  <input
-                    className="mt-1 w-full bg-transparent text-sm font-bold text-ink outline-none"
-                    onChange={(event) => onStartDateChange?.(event.target.value)}
-                    type="date"
-                    value={startDate}
-                  />
-                </label>
+                <RecurringDateButton
+                  isActive={activeCalendar === 'start'}
+                  label="Starts"
+                  onClick={() => setActiveCalendar((currentValue) => (currentValue === 'start' ? null : 'start'))}
+                  value={startDate}
+                />
 
-                <label className={`rounded-2xl bg-white px-3 py-2.5 ${pressableStyles} ${neverEnds ? 'opacity-60' : ''}`}>
-                  <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                    Ends
-                  </span>
-                  <input
-                    className="mt-1 w-full bg-transparent text-sm font-bold text-ink outline-none"
-                    disabled={neverEnds}
-                    onChange={(event) => onEndDateChange?.(event.target.value)}
-                    type="date"
-                    value={endDate}
+                <RecurringDateButton
+                  disabled={neverEnds}
+                  isActive={activeCalendar === 'end'}
+                  label="Ends"
+                  onClick={() => setActiveCalendar((currentValue) => (currentValue === 'end' ? null : 'end'))}
+                  value={endDate}
+                />
+              </div>
+
+              <div
+                className={`grid transition-all duration-300 ease-out ${
+                  activeCalendar ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                } motion-reduce:transition-none`}
+              >
+                <div className={`overflow-hidden ${activeCalendar ? motionVariants.fadeSlideIn : ''}`}>
+                  <InlineCalendarPicker
+                    isOpen={Boolean(activeCalendar)}
+                    onClose={() => setActiveCalendar(null)}
+                    onSelect={activeCalendarChange}
+                    value={activeCalendarValue}
                   />
-                </label>
+                </div>
               </div>
 
               <label className={`flex items-center justify-between rounded-2xl bg-white px-3 py-2.5 ${pressableStyles}`}>
@@ -145,7 +182,12 @@ export function RecurringOptions({
                 <input
                   checked={neverEnds}
                   className="h-5 w-5 accent-teal-500 transition-transform duration-200 ease-out active:scale-90 motion-reduce:transition-none"
-                  onChange={(event) => onNeverEndsChange?.(event.target.checked)}
+                  onChange={(event) => {
+                    onNeverEndsChange?.(event.target.checked);
+                    if (event.target.checked && activeCalendar === 'end') {
+                      setActiveCalendar(null);
+                    }
+                  }}
                   type="checkbox"
                 />
               </label>

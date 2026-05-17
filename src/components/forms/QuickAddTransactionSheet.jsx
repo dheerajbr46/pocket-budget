@@ -2,10 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { getCategoriesForType } from '../../constants/categories.js';
 import { RECURRENCE_TYPES } from '../../constants/recurrenceTypes.js';
 import { TRANSACTION_TYPES } from '../../constants/transactionTypes.js';
+import {
+  detectCategory,
+  learnCategoryForNote,
+  shouldAutoSelectSuggestion
+} from '../../services/categoryDetectionService.js';
 import { toDateInputValue } from '../../utils/dates/index.js';
 import { AnimatedButton } from '../ui/AnimatedButton.jsx';
 import { BottomSheet } from '../ui/BottomSheet.jsx';
 import { CategorySelect } from './CategorySelect.jsx';
+import { CategorySuggestionChip } from './CategorySuggestionChip.jsx';
 import { NoteInput } from './NoteInput.jsx';
 import { RecurringOptions } from './RecurringOptions.jsx';
 import { TransactionTypeToggle } from './TransactionTypeToggle.jsx';
@@ -15,6 +21,8 @@ export function QuickAddTransactionSheet({ isOpen, onClose, onSave }) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(getCategoriesForType(TRANSACTION_TYPES.EXPENSE)[0]);
   const [note, setNote] = useState('');
+  const [hasUserSelectedCategory, setHasUserSelectedCategory] = useState(false);
+  const [categorySuggestion, setCategorySuggestion] = useState(null);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceFrequency, setRecurrenceFrequency] = useState(RECURRENCE_TYPES.MONTHLY);
   const [recurrenceStartDate, setRecurrenceStartDate] = useState(toDateInputValue());
@@ -37,6 +45,30 @@ export function QuickAddTransactionSheet({ isOpen, onClose, onSave }) {
   function handleTypeChange(nextType) {
     setType(nextType);
     setCategory(getCategoriesForType(nextType)[0]);
+    setHasUserSelectedCategory(false);
+    setCategorySuggestion(null);
+  }
+
+  function handleNoteChange(nextNote) {
+    setNote(nextNote);
+    const suggestion = detectCategory(nextNote, type);
+    setCategorySuggestion(suggestion);
+
+    if (suggestion && shouldAutoSelectSuggestion(suggestion) && !hasUserSelectedCategory) {
+      setCategory(suggestion.category);
+    }
+  }
+
+  function handleCategoryChange(nextCategory) {
+    setCategory(nextCategory);
+    setHasUserSelectedCategory(true);
+    learnCategoryForNote(note, nextCategory);
+  }
+
+  function acceptSuggestion(nextCategory) {
+    setCategory(nextCategory);
+    setHasUserSelectedCategory(true);
+    learnCategoryForNote(note, nextCategory);
   }
 
   function handleSubmit(event) {
@@ -66,6 +98,8 @@ export function QuickAddTransactionSheet({ isOpen, onClose, onSave }) {
 
     setAmount('');
     setNote('');
+    setHasUserSelectedCategory(false);
+    setCategorySuggestion(null);
     setIsRecurring(false);
     setRecurrenceFrequency(RECURRENCE_TYPES.MONTHLY);
     setRecurrenceStartDate(toDateInputValue());
@@ -80,8 +114,13 @@ export function QuickAddTransactionSheet({ isOpen, onClose, onSave }) {
       <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
         <TransactionTypeToggle value={type} onChange={handleTypeChange} />
         <QuickAmountInput value={amount} onChange={setAmount} inputRef={amountFocusRef} error={error} />
-        <CategorySelect value={category} onChange={setCategory} type={type} />
-        <NoteInput value={note} onChange={setNote} />
+        <CategorySelect value={category} onChange={handleCategoryChange} type={type} />
+        <NoteInput value={note} onChange={handleNoteChange} />
+        <CategorySuggestionChip
+          currentCategory={category}
+          suggestion={categorySuggestion}
+          onAccept={acceptSuggestion}
+        />
         <RecurringOptions
           endDate={recurrenceEndDate}
           frequency={recurrenceFrequency}

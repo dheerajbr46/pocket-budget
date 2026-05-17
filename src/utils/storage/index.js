@@ -3,6 +3,7 @@ import { areValidBudgetGoals } from '../budgets/index.js';
 const TRANSACTIONS_STORAGE_KEY = 'pocket-budget.transactions';
 const CURRENCY_STORAGE_KEY = 'pocket-budget.currency';
 const BUDGET_GOALS_STORAGE_KEY = 'pocket-budget.budget-goals';
+const CATEGORY_LEARNING_STORAGE_KEY = 'pocket-budget.category-learning';
 
 function canUseLocalStorage() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
@@ -164,4 +165,23 @@ export function saveStoredBudgetGoals(budgets) {
 
 export function clearStoredBudgetGoals() {
   return removeLocalStorageItem(BUDGET_GOALS_STORAGE_KEY);
+}
+
+export function getStoredCategoryLearning() {
+  const parsedValue = getLocalStorageItem(CATEGORY_LEARNING_STORAGE_KEY, {});
+
+  if (!parsedValue || typeof parsedValue !== 'object' || Array.isArray(parsedValue)) {
+    clearStoredCategoryLearning();
+    return {};
+  }
+
+  return parsedValue;
+}
+
+export function saveStoredCategoryLearning(learningMap) {
+  return saveLocalStorageItem(CATEGORY_LEARNING_STORAGE_KEY, learningMap);
+}
+
+export function clearStoredCategoryLearning() {
+  return removeLocalStorageItem(CATEGORY_LEARNING_STORAGE_KEY);
 }

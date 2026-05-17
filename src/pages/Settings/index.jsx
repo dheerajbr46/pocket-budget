@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
-import { Download, FileUp, ShieldCheck, Trash2, WalletCards } from 'lucide-react';
+import { ChevronDown, Download, FileUp, ShieldCheck, Trash2, WalletCards } from 'lucide-react';
+import { pressableStyles } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
+import { SelectSheet } from '../../components/ui/SelectSheet.jsx';
 import { areValidTransactions } from '../../utils/storage/index.js';
 
 const APP_NAME = 'Pocket Budget';
@@ -23,7 +25,13 @@ export function Settings({
 }) {
   const fileInputRef = useRef(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [isCurrencySheetOpen, setIsCurrencySheetOpen] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const currencyOptions = currencies.map((item) => ({
+    label: `${item.code} - ${item.label}`,
+    value: item.code
+  }));
+  const activeCurrencyLabel = currencyOptions.find((option) => option.value === currency)?.label ?? currency;
 
   function handleExportData() {
     const exportPayload = {
@@ -105,28 +113,33 @@ export function Settings({
 
       <Card>
         <h2 className="text-lg font-bold">Preferences</h2>
-        <label className="mt-4 block rounded-3xl bg-slate-50 p-4">
+        <div className="mt-4 rounded-3xl bg-slate-50 p-4">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
             Default currency
           </span>
-          <select
-            className="mt-2 h-12 w-full bg-transparent text-lg font-bold text-ink outline-none"
-            onChange={(event) => {
-              onCurrencyChange(event.target.value);
+          <button
+            type="button"
+            onClick={() => setIsCurrencySheetOpen(true)}
+            className={`mt-2 flex h-12 w-full items-center justify-between bg-transparent text-left text-lg font-bold text-ink outline-none focus-visible:ring-2 focus-visible:ring-mint/40 ${pressableStyles}`}
+          >
+            <span>{activeCurrencyLabel}</span>
+            <ChevronDown size={18} className="text-slate-400" />
+          </button>
+          <SelectSheet
+            isOpen={isCurrencySheetOpen}
+            onClose={() => setIsCurrencySheetOpen(false)}
+            onSelect={(nextCurrency) => {
+              onCurrencyChange(nextCurrency);
               setStatusMessage('Currency setting saved.');
             }}
             value={currency}
-          >
-            {currencies.map((item) => (
-              <option key={item.code} value={item.code}>
-                {item.code} - {item.label}
-              </option>
-            ))}
-          </select>
+            options={currencyOptions}
+            title="Choose currency"
+          />
           <span className="mt-1 block text-sm text-slate-500">
             This changes how amounts are displayed across the app.
           </span>
-        </label>
+        </div>
       </Card>
 
       <Card>

@@ -9,13 +9,21 @@ import { TransactionTypeToggle } from '../../components/forms/TransactionTypeTog
 import { getCategoriesForType } from '../../constants/categories.js';
 import { RECURRENCE_TYPES } from '../../constants/recurrenceTypes.js';
 import { TRANSACTION_TYPES } from '../../constants/transactionTypes.js';
+import {
+  detectCategory,
+  learnCategoryForNote,
+  shouldAutoSelectSuggestion
+} from '../../services/categoryDetectionService.js';
 import { toDateInputValue } from '../../utils/dates/index.js';
+import { CategorySuggestionChip } from '../../components/forms/CategorySuggestionChip.jsx';
 
 export function AddTransaction({ onSave }) {
   const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(getCategoriesForType(TRANSACTION_TYPES.EXPENSE)[0]);
   const [note, setNote] = useState('');
+  const [hasUserSelectedCategory, setHasUserSelectedCategory] = useState(false);
+  const [categorySuggestion, setCategorySuggestion] = useState(null);
   const [date, setDate] = useState(toDateInputValue);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrenceFrequency, setRecurrenceFrequency] = useState(RECURRENCE_TYPES.MONTHLY);
@@ -26,7 +34,31 @@ export function AddTransaction({ onSave }) {
   function handleTypeChange(nextType) {
     setType(nextType);
     setCategory(getCategoriesForType(nextType)[0]);
+    setHasUserSelectedCategory(false);
+    setCategorySuggestion(null);
     setErrors((currentErrors) => ({ ...currentErrors, category: undefined }));
+  }
+
+  function handleNoteChange(nextNote) {
+    setNote(nextNote);
+    const suggestion = detectCategory(nextNote, type);
+    setCategorySuggestion(suggestion);
+
+    if (suggestion && shouldAutoSelectSuggestion(suggestion) && !hasUserSelectedCategory) {
+      setCategory(suggestion.category);
+    }
+  }
+
+  function handleCategoryChange(nextCategory) {
+    setCategory(nextCategory);
+    setHasUserSelectedCategory(true);
+    learnCategoryForNote(note, nextCategory);
+  }
+
+  function acceptSuggestion(nextCategory) {
+    setCategory(nextCategory);
+    setHasUserSelectedCategory(true);
+    learnCategoryForNote(note, nextCategory);
   }
 
   function validate() {
@@ -74,8 +106,13 @@ export function AddTransaction({ onSave }) {
 
         <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
           <AmountInput value={amount} onChange={setAmount} error={errors.amount} />
-          <CategorySelect value={category} onChange={setCategory} type={type} error={errors.category} />
-          <NoteInput value={note} onChange={setNote} />
+          <CategorySelect value={category} onChange={handleCategoryChange} type={type} error={errors.category} />
+          <NoteInput value={note} onChange={handleNoteChange} />
+          <CategorySuggestionChip
+            currentCategory={category}
+            suggestion={categorySuggestion}
+            onAccept={acceptSuggestion}
+          />
           <DateInput value={date} onChange={setDate} />
           <RecurringOptions
             endDate={recurrenceEndDate}

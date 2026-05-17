@@ -1,12 +1,22 @@
 import { useEffect, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { expenseCategories } from '../../constants/categories.js';
+import { pressableStyles } from '../../constants/motion.js';
 import { Button } from '../ui/Button.jsx';
 import { Modal } from '../ui/Modal.jsx';
+import { SelectSheet } from '../ui/SelectSheet.jsx';
 
 export function BudgetEditModal({ budget, existingCategories = [], isOpen, onClose, onSave }) {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(expenseCategories[0]);
   const [error, setError] = useState('');
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const categoryOptions = expenseCategories.map((categoryName) => ({
+    disabled: !budget && existingCategories.includes(categoryName),
+    label: categoryName,
+    meta: !budget && existingCategories.includes(categoryName) ? 'Budget already exists' : '',
+    value: categoryName
+  }));
 
   useEffect(() => {
     if (!isOpen) {
@@ -47,23 +57,25 @@ export function BudgetEditModal({ budget, existingCategories = [], isOpen, onClo
   return (
     <Modal title={budget ? 'Edit budget' : 'New budget'} onClose={onClose}>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <label className="block rounded-2xl bg-slate-50 px-4 py-3">
+        <div className="rounded-2xl bg-slate-50 px-4 py-3">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Category</span>
-          <select
-            className="mt-2 h-10 w-full bg-transparent font-bold outline-none"
-            onChange={(event) => setCategory(event.target.value)}
-            value={category}
+          <button
+            type="button"
+            onClick={() => setIsCategorySheetOpen(true)}
+            className={`mt-2 flex h-10 w-full items-center justify-between bg-transparent text-left font-bold outline-none focus-visible:ring-2 focus-visible:ring-mint/40 ${pressableStyles}`}
           >
-            {expenseCategories.map((categoryName) => (
-              <option
-                key={categoryName}
-                disabled={!budget && existingCategories.includes(categoryName)}
-              >
-                {categoryName}
-              </option>
-            ))}
-          </select>
-        </label>
+            <span>{category || 'Select category'}</span>
+            <ChevronDown size={18} className="text-slate-400" />
+          </button>
+          <SelectSheet
+            isOpen={isCategorySheetOpen}
+            onClose={() => setIsCategorySheetOpen(false)}
+            onSelect={setCategory}
+            options={categoryOptions}
+            title="Choose budget category"
+            value={category}
+          />
+        </div>
 
         <label className="block rounded-2xl bg-slate-50 px-4 py-3">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Monthly budget</span>

@@ -10,5 +10,10 @@ export const motionVariants = {
   fadeSlideIn: 'animate-soft-slide-in motion-reduce:animate-none'
 };
 
+export const segmentedControlMotion = {
+  activePill: 'transition-transform duration-200 ease-out motion-reduce:transition-none',
+  option: 'transition-colors duration-200 ease-out active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100'
+};
+
 // TODO: Add transition presets for PWA/native migration and haptic feedback for the native app shell.
 // TODO: Add animated category icons once icon states carry richer transaction context.

@@ -1,11 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, Pencil, Repeat2, Search, Trash2, X } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, ChevronDown, Pencil, Repeat2, Search, Trash2, X } from 'lucide-react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { EmptyState } from '../../components/ui/EmptyState.jsx';
+import { SelectSheet } from '../../components/ui/SelectSheet.jsx';
+import { CategorySuggestionChip } from '../../components/forms/CategorySuggestionChip.jsx';
+import { DatePickerButton } from '../../components/forms/DateInput.jsx';
+import { TransactionTypeToggle } from '../../components/forms/TransactionTypeToggle.jsx';
 import { expenseCategories, getCategoriesForType, incomeCategories } from '../../constants/categories.js';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
+import {
+  detectCategory,
+  learnCategoryForNote,
+  shouldAutoSelectSuggestion
+} from '../../services/categoryDetectionService.js';
 import {
   calculateFilteredTransactionSummary,
   filterTransactions,
@@ -43,6 +52,7 @@ export function Activity({
   const currency = useCurrency();
   const [activeFilter, setActiveFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [isCategoryFilterOpen, setIsCategoryFilterOpen] = useState(false);
   const [dateRange, setDateRange] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [editingTransaction, setEditingTransaction] = useState(null);
@@ -67,6 +77,16 @@ export function Activity({
     () => groupTransactionsByFriendlyDate(filteredTransactions),
     [filteredTransactions]
   );
+  const categoryFilterOptions = useMemo(
+    () =>
+      categoryOptions.map((categoryName) => ({
+        label: categoryName === 'all' ? 'All categories' : categoryName,
+        value: categoryName
+      })),
+    []
+  );
+  const activeCategoryFilterLabel =
+    categoryFilterOptions.find((option) => option.value === categoryFilter)?.label ?? 'All categories';
 
   const hasActiveFilters = activeFilter !== 'all' || categoryFilter !== 'all' || dateRange !== 'all' || searchTerm.trim();
   const periodOnlyEmpty =
@@ -167,22 +187,27 @@ export function Activity({
           })}
         </div>
 
-        <label className="mt-4 block">
+        <div className="mt-4">
           <span className="mb-2 block px-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
             Category
           </span>
-          <select
-            className="h-14 w-full rounded-2xl bg-slate-50 px-4 py-3 font-semibold text-ink outline-none"
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            value={categoryFilter}
+          <button
+            type="button"
+            onClick={() => setIsCategoryFilterOpen(true)}
+            className={`flex h-14 w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left font-semibold text-ink outline-none focus-visible:ring-2 focus-visible:ring-mint/40 ${pressableStyles}`}
           >
-            {categoryOptions.map((categoryName) => (
-              <option key={categoryName} value={categoryName}>
-                {categoryName === 'all' ? 'All categories' : categoryName}
-              </option>
-            ))}
-          </select>
-        </label>
+            <span>{activeCategoryFilterLabel}</span>
+            <ChevronDown size={18} className="text-slate-400" />
+          </button>
+          <SelectSheet
+            isOpen={isCategoryFilterOpen}
+            onClose={() => setIsCategoryFilterOpen(false)}
+            onSelect={setCategoryFilter}
+            options={categoryFilterOptions}
+            title="Filter by category"
+            value={categoryFilter}
+          />
+        </div>
       </Card>
 
       {groupedTransactions.length > 0 ? (
@@ -350,14 +375,45 @@ function EditTransactionPanel({ onCancel, onSave, transaction }) {
   const [type, setType] = useState(transaction.type);
   const [amount, setAmount] = useState(String(transaction.amount));
   const [category, setCategory] = useState(transaction.category);
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [note, setNote] = useState(transaction.note);
+  const [hasUserSelectedCategory, setHasUserSelectedCategory] = useState(false);
+  const [categorySuggestion, setCategorySuggestion] = useState(() => detectCategory(transaction.note, transaction.type));
   const [date, setDate] = useState(transaction.date);
   const [error, setError] = useState('');
   const categories = getCategoriesForType(type);
+  const categoryOptionsForEdit = categories.map((categoryName) => ({
+    label: categoryName,
+    value: categoryName
+  }));
 
   function handleTypeChange(nextType) {
     setType(nextType);
     setCategory(getCategoriesForType(nextType)[0]);
+    setHasUserSelectedCategory(false);
+    setCategorySuggestion(detectCategory(note, nextType));
+  }
+
+  function handleNoteChange(nextNote) {
+    setNote(nextNote);
+    const suggestion = detectCategory(nextNote, type);
+    setCategorySuggestion(suggestion);
+
+    if (suggestion && shouldAutoSelectSuggestion(suggestion) && !hasUserSelectedCategory) {
+      setCategory(suggestion.category);
+    }
+  }
+
+  function handleCategoryChange(nextCategory) {
+    setCategory(nextCategory);
+    setHasUserSelectedCategory(true);
+    learnCategoryForNote(note, nextCategory);
+  }
+
+  function acceptSuggestion(nextCategory) {
+    setCategory(nextCategory);
+    setHasUserSelectedCategory(true);
+    learnCategoryForNote(note, nextCategory);
   }
 
   function handleSubmit(event) {
@@ -402,19 +458,7 @@ function EditTransactionPanel({ onCancel, onSave, transaction }) {
       </div>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
-          {['expense', 'income'].map((option) => (
-            <Button
-              key={option}
-              onClick={() => handleTypeChange(option)}
-              className={`rounded-xl px-4 py-3 text-sm font-bold capitalize transition ${
-                type === option ? 'bg-white text-ink shadow-sm' : 'text-slate-500'
-              }`}
-            >
-              {option}
-            </Button>
-          ))}
-        </div>
+        <TransactionTypeToggle value={type} onChange={handleTypeChange} />
 
         <input
           className="h-14 w-full rounded-2xl bg-slate-50 px-4 text-lg font-bold outline-none placeholder:text-slate-300"
@@ -424,27 +468,40 @@ function EditTransactionPanel({ onCancel, onSave, transaction }) {
           value={amount}
         />
 
-        <select
-          className="h-14 w-full rounded-2xl bg-slate-50 px-4 font-semibold outline-none"
-          onChange={(event) => setCategory(event.target.value)}
-          value={category}
+        <button
+          type="button"
+          onClick={() => setIsCategorySheetOpen(true)}
+          className={`flex h-14 w-full items-center justify-between rounded-2xl bg-slate-50 px-4 text-left font-semibold outline-none focus-visible:ring-2 focus-visible:ring-mint/40 ${pressableStyles}`}
         >
-          {categories.map((categoryName) => (
-            <option key={categoryName}>{categoryName}</option>
-          ))}
-        </select>
+          <span>{category || 'Select category'}</span>
+          <ChevronDown size={18} className="text-slate-400" />
+        </button>
+        <SelectSheet
+          isOpen={isCategorySheetOpen}
+          onClose={() => setIsCategorySheetOpen(false)}
+          onSelect={handleCategoryChange}
+          options={categoryOptionsForEdit}
+          title="Choose category"
+          value={category}
+        />
 
         <input
           className="h-14 w-full rounded-2xl bg-slate-50 px-4 font-semibold outline-none placeholder:text-slate-400"
-          onChange={(event) => setNote(event.target.value)}
+          onChange={(event) => handleNoteChange(event.target.value)}
           placeholder="Note"
           value={note}
         />
 
-        <input
-          className="h-14 w-full rounded-2xl bg-slate-50 px-4 font-semibold outline-none"
-          onChange={(event) => setDate(event.target.value)}
-          type="date"
+        <CategorySuggestionChip
+          currentCategory={category}
+          suggestion={categorySuggestion}
+          onAccept={acceptSuggestion}
+        />
+
+        <DatePickerButton
+          className="h-14 rounded-2xl bg-slate-50 px-4"
+          label="Transaction date"
+          onChange={setDate}
           value={date}
         />
 
