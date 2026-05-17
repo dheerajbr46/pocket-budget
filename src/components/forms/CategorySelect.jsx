@@ -1,4 +1,4 @@
-import { Tag } from 'lucide-react';
+import { Tag } from '@phosphor-icons/react';
 import { getCategoriesForType } from '../../constants/categories.js';
 import { FormField } from './FormField.jsx';
 

@@ -1,4 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, Repeat2 } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, ArrowsClockwise } from '@phosphor-icons/react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { formatCurrency } from '../../utils/currency/index.js';
@@ -43,7 +43,7 @@ export function TransactionItem({ onSelect, transaction }) {
           </span>
           {isRecurringRelated(transaction) ? (
             <span className={`inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 ${transitionPresets.base}`}>
-              <Repeat2 size={12} />
+              <ArrowsClockwise size={12} />
               Recurring
             </span>
           ) : null}

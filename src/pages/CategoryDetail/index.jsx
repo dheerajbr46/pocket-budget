@@ -1,12 +1,14 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from '@phosphor-icons/react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { CategorySummaryCard } from '../../components/cards/CategorySummaryCard.jsx';
 import { CategoryTransactionList } from '../../components/cards/CategoryTransactionList.jsx';
 import { CategoryTrendCard } from '../../components/cards/CategoryTrendCard.jsx';
+import { CategorySpendingChart } from '../../components/charts/CategorySpendingChart.jsx';
 import {
   calculateCategorySummary,
-  calculateCategoryTrend
+  calculateCategoryTrend,
+  getCategoryDailyTrend
 } from '../../services/reportService.js';
 
 const periodOptions = [
@@ -34,6 +36,7 @@ export function CategoryDetail({ category, onBack, onPeriodChange, period, trans
 
   const summary = calculateCategorySummary(transactions, category, { period });
   const trend = calculateCategoryTrend(transactions, category, { period });
+  const dailyTrend = getCategoryDailyTrend(transactions, category, 30);
 
   return (
     <div className="space-y-5">
@@ -64,6 +67,13 @@ export function CategoryDetail({ category, onBack, onPeriodChange, period, trans
           );
         })}
       </div>
+
+      <Card className="bg-white/80 p-4 dark:bg-slate-800">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+          30-day spending
+        </p>
+        <CategorySpendingChart data={dailyTrend} />
+      </Card>
 
       <CategoryTrendCard period={period} trend={trend} />
       <CategoryTransactionList period={period} transactions={summary.transactions} />

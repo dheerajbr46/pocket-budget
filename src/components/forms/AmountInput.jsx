@@ -1,9 +1,9 @@
-import { DollarSign } from 'lucide-react';
+import { CurrencyDollar } from '@phosphor-icons/react';
 import { FormField } from './FormField.jsx';
 
 export function AmountInput({ error, value, onChange }) {
   return (
-    <FormField error={error} icon={DollarSign} label="Amount">
+    <FormField error={error} icon={CurrencyDollar} label="Amount">
       <input
         className="w-full bg-transparent text-3xl font-bold outline-none placeholder:text-slate-300"
         inputMode="decimal"

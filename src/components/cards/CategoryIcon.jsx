@@ -1,31 +1,31 @@
 import {
-  HeartPulse,
-  Home,
-  MoreHorizontal,
-  Music,
+  Heartbeat,
+  House,
+  DotsThree,
+  MusicNote,
   Receipt,
   ShoppingBag,
   ShoppingCart,
-  Utensils,
-  Zap,
+  ForkKnife,
+  Lightning,
   Car
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 
 const categoryIconMap = {
-  Entertainment: Music,
-  Food: Utensils,
+  Entertainment: MusicNote,
+  Food: ForkKnife,
   Groceries: ShoppingCart,
-  Health: HeartPulse,
-  Other: MoreHorizontal,
-  Rent: Home,
+  Health: Heartbeat,
+  Other: DotsThree,
+  Rent: House,
   Shopping: ShoppingBag,
   Subscriptions: Receipt,
   Transport: Car,
-  Utilities: Zap
+  Utilities: Lightning
 };
 
 export function CategoryIcon({ category, className = 'h-11 w-11 rounded-2xl bg-teal-50 text-mint' }) {
-  const Icon = categoryIconMap[category] ?? MoreHorizontal;
+  const Icon = categoryIconMap[category] ?? DotsThree;
 
   return (
     <span className={`grid shrink-0 place-items-center ${className}`}>

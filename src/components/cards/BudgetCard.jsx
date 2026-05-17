@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import { pressableStyles } from '../../constants/motion.js';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { formatCurrency } from '../../utils/currency/index.js';
@@ -52,14 +52,14 @@ export function BudgetCard({ budget, onDelete, onEdit }) {
           onClick={() => onEdit(budget)}
           className="flex h-10 items-center justify-center gap-2 rounded-2xl bg-slate-100 text-sm font-bold text-slate-600"
         >
-          <Pencil size={16} />
+          <PencilSimple size={16} />
           Edit
         </Button>
         <Button
           onClick={() => onDelete(budget.id)}
           className="flex h-10 items-center justify-center gap-2 rounded-2xl bg-rose-50 text-sm font-bold text-coral"
         >
-          <Trash2 size={16} />
+          <Trash size={16} />
           Delete
         </Button>
       </div>

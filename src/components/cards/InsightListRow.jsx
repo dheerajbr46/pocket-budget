@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { CheckCircle, Info, Warning, XCircle } from '@phosphor-icons/react';
 import { transitionPresets } from '../../constants/motion.js';
 
 const rowStyles = {
@@ -13,12 +13,12 @@ const rowStyles = {
     textClass: 'text-slate-700'
   },
   positive: {
-    icon: CheckCircle2,
+    icon: CheckCircle,
     iconClass: 'bg-teal-50 text-mint',
     textClass: 'text-teal-900'
   },
   warning: {
-    icon: AlertTriangle,
+    icon: Warning,
     iconClass: 'bg-amber-100 text-amber-600',
     textClass: 'text-amber-900'
   }

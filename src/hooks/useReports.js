@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  getDailyTrend,
   getMonthSpending,
   getMonthlyCategorySpending,
   getPeriodReport,
@@ -19,6 +20,7 @@ export function useDashboardReport(transactions) {
       summary: summarizeTransactions(transactions),
       todaySummary: getTodaySummary(transactions),
       upcomingTimeline: getUpcomingTimeline(transactions),
+      weeklyTrend: getDailyTrend(transactions, 7),
       weekSpending: getWeekSpending(transactions)
     }),
     [transactions]
@@ -28,6 +30,7 @@ export function useDashboardReport(transactions) {
 export function useReports(transactions) {
   return useMemo(
     () => ({
+      dailyTrend: getDailyTrend(transactions, 30),
       monthlyReport: getPeriodReport(transactions, 'month'),
       weeklyReport: getPeriodReport(transactions, 'week')
     }),

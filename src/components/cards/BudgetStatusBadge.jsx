@@ -1,14 +1,14 @@
-import { AlertTriangle, Ban, CheckCircle2, Flame } from 'lucide-react';
+import { CheckCircle, Fire, Prohibit, Warning } from '@phosphor-icons/react';
 
 const iconMap = {
-  alert: AlertTriangle,
-  ban: Ban,
-  check: CheckCircle2,
-  flame: Flame
+  alert: Warning,
+  ban: Prohibit,
+  check: CheckCircle,
+  flame: Fire
 };
 
 export function BudgetStatusBadge({ health }) {
-  const Icon = iconMap[health.icon] ?? CheckCircle2;
+  const Icon = iconMap[health.icon] ?? CheckCircle;
 
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${health.badgeClass}`}>

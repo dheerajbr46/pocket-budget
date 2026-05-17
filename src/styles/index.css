@@ -1,14 +1,36 @@
+@import '@fontsource-variable/plus-jakarta-sans';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color: #14213d;
-  background: #e5eef5;
+  --color-ink: 15 23 42;
+  --color-paper: 248 250 252;
+  --app-bg: #f6f8fc;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-subtle: #f1f5f9;
+  --border-color: rgba(15, 23, 42, 0.07);
+
+  color: rgb(var(--color-ink));
+  background: var(--app-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-ink: 226 232 240;
+    --color-paper: 15 23 42;
+    --app-bg: #0f172a;
+    --surface: #1e293b;
+    --surface-muted: #1e293b;
+    --surface-subtle: #334155;
+    --border-color: rgba(255, 255, 255, 0.08);
+  }
 }
 
 * {

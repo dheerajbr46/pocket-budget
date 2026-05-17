@@ -127,6 +127,31 @@ function filterByPeriod(transactions, period, today = new Date()) {
   return transactions.filter((transaction) => isWithinRange(transaction.date, start, end));
 }
 
+export function getCategoryDailyTrend(transactions, category, days = 30, today = new Date()) {
+  const filtered = transactions.filter(
+    (t) => t.type === 'expense' && t.category === category
+  );
+  return getDailyTrend(filtered, days, today);
+}
+
+export function getDailyTrend(transactions, days = 30, today = new Date()) {
+  const result = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    const dateStr = toDateInputValue(d);
+    const dayTxns = transactions.filter((t) => t.date === dateStr);
+    result.push({
+      date: dateStr,
+      label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      income: dayTxns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+      expenses: dayTxns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+    });
+  }
+  return result;
+}
+
 export function filterTransactionsByCategory(transactions, category, options = {}) {
   const { period = 'all', today = new Date() } = options;
 

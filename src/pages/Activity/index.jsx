@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, Pencil, Repeat2, Search, Trash2, X } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, ArrowsClockwise, MagnifyingGlass, PencilSimple, Trash, X } from '@phosphor-icons/react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
@@ -121,7 +121,7 @@ export function Activity({
 
       <Card>
         <label className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3">
-          <Search size={18} className="shrink-0 text-slate-400" />
+          <MagnifyingGlass size={18} className="shrink-0 text-slate-400" />
           <input
             className="w-full bg-transparent font-semibold outline-none placeholder:text-slate-400"
             onChange={(event) => setSearchTerm(event.target.value)}
@@ -313,7 +313,7 @@ function TransactionRow({ isEditing, onDelete, onEdit, onSelect, transaction }) 
             </span>
             {isRecurringRelated(transaction) ? (
               <span className={`inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 ${transitionPresets.base}`}>
-                <Repeat2 size={12} />
+                <ArrowsClockwise size={12} />
                 Recurring
               </span>
             ) : null}
@@ -331,14 +331,14 @@ function TransactionRow({ isEditing, onDelete, onEdit, onSelect, transaction }) 
             isEditing ? 'bg-teal-50 text-mint' : 'bg-slate-50 text-slate-500'
           }`}
         >
-          <Pencil size={16} />
+          <PencilSimple size={16} />
           {isEditing ? 'Editing' : 'Edit'}
         </Button>
         <Button
           onClick={onDelete}
           className="flex h-10 items-center justify-center gap-2 rounded-2xl bg-rose-50/80 text-sm font-bold text-coral"
         >
-          <Trash2 size={16} />
+          <Trash size={16} />
           Delete
         </Button>
       </div>

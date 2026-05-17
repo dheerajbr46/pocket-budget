@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { CaretDown } from '@phosphor-icons/react';
 import { InsightGroup } from './InsightGroup.jsx';
 import { InsightListRow } from './InsightListRow.jsx';
 
@@ -20,7 +20,7 @@ export function CollapsibleInsightGroup({
         isOpen={isOpen}
         onToggle={() => setIsOpen((currentValue) => !currentValue)}
         trailing={
-          <ChevronDown
+          <CaretDown
             size={16}
             className={`text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
           />

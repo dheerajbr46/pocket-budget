@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ArrowUpRight, CalendarClock, Plus, Repeat2 } from 'lucide-react';
+import { animate, motion } from 'framer-motion';
+import { ArrowUpRight, ArrowsClockwise, CalendarDots, Plus } from '@phosphor-icons/react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
@@ -7,6 +8,7 @@ import { StatCard } from '../../components/cards/StatCard.jsx';
 import { TransactionItem } from '../../components/cards/TransactionItem.jsx';
 import { SuccessMessage } from '../../components/feedback/SuccessMessage.jsx';
 import { FinancialHealthSummary } from '../../components/cards/FinancialHealthSummary.jsx';
+import { WeeklyBarChart } from '../../components/charts/WeeklyBarChart.jsx';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { useDashboardReport } from '../../hooks/useReports.js';
 import { formatCurrency } from '../../utils/currency/index.js';
@@ -28,6 +30,7 @@ export function Dashboard({
     summary,
     todaySummary,
     upcomingTimeline,
+    weeklyTrend,
     weekSpending
   } = useDashboardReport(transactions);
 
@@ -43,7 +46,9 @@ export function Dashboard({
         <div className="pointer-events-none absolute bottom-0 right-1/3 h-24 w-24 rounded-full bg-coral/8 blur-2xl" />
         <div className="relative">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">Total balance</p>
-          <p className="mt-3 text-5xl font-bold tracking-tight">{formatCurrency(summary.balance, currency)}</p>
+          <p className="mt-3 text-5xl font-bold tracking-tight">
+            <AnimatedAmount value={summary.balance} currency={currency} />
+          </p>
           <p className="mt-2 text-xs font-medium text-white/35">Stored locally · this browser</p>
         </div>
         <div className="relative mt-6 grid grid-cols-3 gap-2">
@@ -51,6 +56,20 @@ export function Dashboard({
           <MiniMetric label="Today out" value={todaySummary.expenses} />
           <MiniMetric label="Today net" value={todaySummary.balance} />
         </div>
+      </Card>
+
+      <Card className="bg-white/80 p-4 dark:bg-slate-800">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">This week</p>
+            <p className="mt-0.5 text-xl font-bold">{formatCurrency(weekSpending, currency)}</p>
+          </div>
+          <span className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+            <span className="h-2 w-2 rounded-full bg-coral" />
+            Daily expenses
+          </span>
+        </div>
+        <WeeklyBarChart data={weeklyTrend} />
       </Card>
 
       <Button
@@ -68,7 +87,7 @@ export function Dashboard({
             <h2 className="mt-1 text-lg font-bold">Upcoming</h2>
           </div>
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo/10 text-indigo">
-            <CalendarClock size={18} />
+            <CalendarDots size={18} />
           </span>
         </div>
 
@@ -101,21 +120,33 @@ export function Dashboard({
             View all
           </Button>
         </div>
-        <div className="space-y-3">
+        <motion.div
+          className="space-y-3"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }}
+          initial="hidden"
+          animate="visible"
+        >
           {recentTransactions.length > 0 ? (
             recentTransactions.map((transaction) => (
-              <TransactionItem
+              <motion.div
                 key={transaction.id}
-                onSelect={onTransactionSelect}
-                transaction={transaction}
-              />
+                variants={{
+                  hidden: { opacity: 0, x: -14 },
+                  visible: { opacity: 1, x: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.35 } }
+                }}
+              >
+                <TransactionItem
+                  onSelect={onTransactionSelect}
+                  transaction={transaction}
+                />
+              </motion.div>
             ))
           ) : (
             <p className="rounded-3xl bg-white px-4 py-5 text-sm font-semibold text-slate-500 shadow-card">
               No transactions yet.
             </p>
           )}
-        </div>
+        </motion.div>
       </section>
 
       <Card className="bg-white/70 p-4">
@@ -152,6 +183,21 @@ export function Dashboard({
       </div>
     </div>
   );
+}
+
+function AnimatedAmount({ value, currency }) {
+  const [display, setDisplay] = useState(formatCurrency(0, currency));
+
+  useEffect(() => {
+    const controls = animate(0, value, {
+      duration: 1.2,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisplay(formatCurrency(Math.round(v), currency))
+    });
+    return controls.stop;
+  }, [value, currency]);
+
+  return <span>{display}</span>;
 }
 
 function MiniMetric({ label, value }) {
@@ -193,7 +239,7 @@ function UpcomingRecurringItem({ transaction }) {
         <div className="mt-1 flex items-center gap-2">
           <p className="text-xs font-semibold text-slate-400">{transaction.category}</p>
           <span className={`inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold text-slate-500 ${transitionPresets.base}`}>
-            <Repeat2 size={10} />
+            <ArrowsClockwise size={10} />
             {getFrequencyLabel(transaction.recurrenceFrequency)}
           </span>
         </div>

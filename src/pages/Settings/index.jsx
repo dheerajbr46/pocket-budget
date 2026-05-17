@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Download, FileUp, ShieldCheck, Trash2, WalletCards } from 'lucide-react';
+import { CreditCard, DownloadSimple, FileArrowUp, ShieldCheck, Trash } from '@phosphor-icons/react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { areValidTransactions } from '../../utils/storage/index.js';
@@ -43,6 +43,28 @@ export function Settings({
     link.click();
     URL.revokeObjectURL(downloadUrl);
     setStatusMessage('Export ready.');
+  }
+
+  function handleExportCSV() {
+    const headers = ['Date', 'Type', 'Category', 'Amount', 'Note', 'Recurring'];
+    const rows = transactions.map((t) => [
+      t.date,
+      t.type,
+      t.category,
+      t.amount,
+      `"${(t.note || '').replace(/"/g, '""')}"`,
+      t.isRecurring ? 'Yes' : 'No'
+    ]);
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = downloadUrl;
+    link.download = `pocket-budget-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(downloadUrl);
+    setStatusMessage('CSV export ready.');
   }
 
   function handleImportData(event) {
@@ -93,7 +115,7 @@ export function Settings({
       <Card className="bg-ink text-white">
         <div className="flex items-center gap-4">
           <span className="grid h-14 w-14 place-items-center rounded-3xl bg-white/10">
-            <WalletCards size={24} />
+            <CreditCard size={24} />
           </span>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/55">App</p>
@@ -140,15 +162,23 @@ export function Settings({
             onClick={handleExportData}
             className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-slate-100 font-bold text-slate-700"
           >
-            <Download size={18} />
+            <DownloadSimple size={18} />
             Export data as JSON
+          </Button>
+
+          <Button
+            onClick={handleExportCSV}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-indigo/10 font-bold text-indigo"
+          >
+            <DownloadSimple size={18} />
+            Export data as CSV
           </Button>
 
           <Button
             onClick={() => fileInputRef.current?.click()}
             className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-teal-50 font-bold text-mint"
           >
-            <FileUp size={18} />
+            <FileArrowUp size={18} />
             Import data from JSON
           </Button>
 
@@ -166,7 +196,7 @@ export function Settings({
               confirmClear ? 'bg-coral text-white' : 'bg-rose-50 text-coral'
             }`}
           >
-            <Trash2 size={18} />
+            <Trash size={18} />
             {confirmClear ? 'Confirm clear all data' : 'Clear all data'}
           </Button>
         </div>

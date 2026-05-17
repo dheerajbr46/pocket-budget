@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  darkMode: 'media',
   theme: {
     extend: {
       colors: {
-        ink: '#0f172a',
-        paper: '#f8fafc',
+        ink: 'rgb(var(--color-ink) / <alpha-value>)',
+        paper: 'rgb(var(--color-paper) / <alpha-value>)',
         mint: '#14b8a6',
         coral: '#fb7185',
         indigo: '#4f46e5',
@@ -27,12 +28,11 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Inter',
+          '"Plus Jakarta Sans Variable"',
           'ui-sans-serif',
           'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
-          'Segoe UI',
           'sans-serif'
         ]
       }

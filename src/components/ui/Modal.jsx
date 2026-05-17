@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X } from '@phosphor-icons/react';
 import { Button } from './Button.jsx';
 import { Card } from './Card.jsx';
 

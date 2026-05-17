@@ -1,4 +1,4 @@
-import { ChevronDown, Repeat2 } from 'lucide-react';
+import { ArrowsClockwise, CaretDown } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { recurrenceOptions } from '../../constants/recurrenceTypes.js';
 import { motionVariants, pressableStyles, transitionPresets } from '../../constants/motion.js';
@@ -42,7 +42,7 @@ export function RecurringOptions({
       <label className={`flex items-center justify-between gap-4 rounded-2xl ${pressableStyles}`}>
         <span className="flex min-w-0 items-center gap-2.5">
           <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-white text-mint ${transitionPresets.base} ${isRecurring ? 'shadow-sm ring-1 ring-teal-100' : ''}`}>
-            <Repeat2 size={17} />
+            <ArrowsClockwise size={17} />
           </span>
           <span className="min-w-0">
             <span className="block text-sm font-bold text-ink">Recurring transaction</span>
@@ -75,7 +75,7 @@ export function RecurringOptions({
                 {isExpanded ? 'Hide settings' : 'Configure'}
               </span>
             </span>
-            <ChevronDown
+            <CaretDown
               size={17}
               className={`shrink-0 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
             />

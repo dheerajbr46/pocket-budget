@@ -1,16 +1,32 @@
+import { TrendUp } from '@phosphor-icons/react';
 import { Card } from '../../components/ui/Card.jsx';
 import { StatCard } from '../../components/cards/StatCard.jsx';
 import { FinancialHealthSummary } from '../../components/cards/FinancialHealthSummary.jsx';
+import { CategoryDonutChart } from '../../components/charts/CategoryDonutChart.jsx';
+import { SpendingTrendChart } from '../../components/charts/SpendingTrendChart.jsx';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { useReports } from '../../hooks/useReports.js';
 import { formatCurrency } from '../../utils/currency/index.js';
 
 export function Reports({ insights = [], onCategorySelect, transactions }) {
-  const { monthlyReport, weeklyReport } = useReports(transactions);
+  const { dailyTrend, monthlyReport, weeklyReport } = useReports(transactions);
 
   return (
     <div className="space-y-5">
       <FinancialHealthSummary insights={insights} />
+
+      <Card className="bg-white/80 p-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Last 30 days</p>
+            <h2 className="mt-1 text-lg font-bold">Spending Trend</h2>
+          </div>
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo/10 text-indigo">
+            <TrendUp size={18} />
+          </span>
+        </div>
+        <SpendingTrendChart data={dailyTrend} />
+      </Card>
 
       <ReportSection
         description="A quick look at money in and out since Sunday."
@@ -32,8 +48,6 @@ export function Reports({ insights = [], onCategorySelect, transactions }) {
           Income is money coming in. Expenses are money going out. Net savings is income minus expenses for the period.
         </p>
       </Card>
-
-      {/* Future extension: category drilldowns can open from each spending bar. */}
     </div>
   );
 }
@@ -86,15 +100,18 @@ function ReportSection({ description, onCategorySelect, report, title }) {
         </div>
 
         {categories.length > 0 ? (
-          <div className="space-y-4">
-            {categories.map((category) => (
-              <CategoryBar
-                key={category.category}
-                category={category}
-                onCategorySelect={onCategorySelect}
-              />
-            ))}
-          </div>
+          <>
+            <CategoryDonutChart data={categories} />
+            <div className="mt-5 space-y-4">
+              {categories.map((category) => (
+                <CategoryBar
+                  key={category.category}
+                  category={category}
+                  onCategorySelect={onCategorySelect}
+                />
+              ))}
+            </div>
+          </>
         ) : (
           <p className="rounded-2xl bg-slate-50 px-4 py-5 text-sm font-semibold text-slate-500">
             No category spending to show yet.
@@ -135,8 +152,8 @@ function CategoryBar({ category, onCategorySelect }) {
         </div>
         <p className="shrink-0 text-sm font-bold">{formatCurrency(category.amount, currency)}</p>
       </div>
-      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full rounded-full bg-mint transition-all duration-700 ease-out" style={{ width }} />
+      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+        <div className="h-full rounded-full bg-gradient-indigo transition-all duration-700 ease-out" style={{ width }} />
       </div>
     </button>
   );

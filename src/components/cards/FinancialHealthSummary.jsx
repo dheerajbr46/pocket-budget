@@ -1,4 +1,4 @@
-import { XCircle } from 'lucide-react';
+import { XCircle } from '@phosphor-icons/react';
 import { Card } from '../ui/Card.jsx';
 import { CollapsibleInsightGroup } from './CollapsibleInsightGroup.jsx';
 

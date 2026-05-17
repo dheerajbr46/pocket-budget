@@ -1,7 +1,8 @@
-import { Plus } from 'lucide-react';
+import { Plus } from '@phosphor-icons/react';
 import { BudgetCard } from '../../components/cards/BudgetCard.jsx';
 import { FinancialHealthSummary } from '../../components/cards/FinancialHealthSummary.jsx';
 import { BudgetEditModal } from '../../components/modals/BudgetEditModal.jsx';
+import { BudgetComparisonChart } from '../../components/charts/BudgetComparisonChart.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { EmptyState } from '../../components/ui/EmptyState.jsx';
@@ -69,6 +70,15 @@ export function Budgets({
         <Plus size={20} />
         Add Budget Goal
       </Button>
+
+      {budgetOverview.progressItems.length > 0 && (
+        <Card className="bg-white/80 p-4 dark:bg-slate-800">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+            Spending vs budget
+          </p>
+          <BudgetComparisonChart progressItems={budgetOverview.progressItems} />
+        </Card>
+      )}
 
       <FinancialHealthSummary insights={insights} title="Budget Health" />
 

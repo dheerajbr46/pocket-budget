@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight } from '@phosphor-icons/react';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { formatCurrency } from '../../utils/currency/index.js';
 import { Card } from '../ui/Card.jsx';

@@ -1,4 +1,4 @@
-import { Copy, Pencil, Repeat2, Trash2, X } from 'lucide-react';
+import { ArrowsClockwise, Copy, PencilSimple, Trash, X } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { recurrenceOptions } from '../../constants/recurrenceTypes.js';
 import { useCurrency } from '../../context/CurrencyContext.jsx';
@@ -104,7 +104,7 @@ export function TransactionDetailSheet({
           </span>
           {isRecurringRelated(displayedTransaction) ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-bold text-teal-700">
-              <Repeat2 size={12} />
+              <ArrowsClockwise size={12} />
               {displayedTransaction.generatedFromRecurringId ? 'Generated' : 'Recurring'}
             </span>
           ) : null}
@@ -163,10 +163,10 @@ export function TransactionDetailSheet({
         ) : null}
 
         <div className="mt-5 grid grid-cols-3 gap-2">
-          <ActionButton icon={Pencil} label="Edit" onClick={() => onEdit(displayedTransaction)} />
+          <ActionButton icon={PencilSimple} label="Edit" onClick={() => onEdit(displayedTransaction)} />
           <ActionButton icon={Copy} label="Duplicate" onClick={() => onDuplicate(displayedTransaction)} />
           <ActionButton
-            icon={Trash2}
+            icon={Trash}
             label="Delete"
             onClick={() => setIsConfirmingDelete(true)}
             tone="danger"
