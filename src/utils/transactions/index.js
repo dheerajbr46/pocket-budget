@@ -126,6 +126,22 @@ export function getTransactionGroupNetAmount(transactions) {
   return calculateFilteredTransactionSummary(transactions).net;
 }
 
+export function currentStreak(transactions, today = new Date()) {
+  const dates = new Set(transactions.map((t) => t.date.slice(0, 10)));
+  let d = new Date(today);
+  d.setHours(0, 0, 0, 0);
+  // If today has no transactions, try from yesterday
+  if (!dates.has(toDateInputValue(d))) {
+    d.setDate(d.getDate() - 1);
+  }
+  let count = 0;
+  while (dates.has(toDateInputValue(d)) && count <= 365) {
+    count++;
+    d.setDate(d.getDate() - 1);
+  }
+  return count;
+}
+
 export function groupTransactionsByFriendlyDate(transactions, today = new Date()) {
   const todayValue = toDateInputValue(today);
   const yesterday = new Date(today);

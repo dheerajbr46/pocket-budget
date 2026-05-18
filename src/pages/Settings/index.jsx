@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { CreditCard, DownloadSimple, FileArrowUp, ShieldCheck, Trash } from '@phosphor-icons/react';
+import { CreditCard, DownloadSimple, FileArrowUp, Monitor, Moon, ShieldCheck, Sun, Trash } from '@phosphor-icons/react';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
 import { areValidTransactions } from '../../utils/storage/index.js';
@@ -14,11 +14,19 @@ const currencies = [
   { code: 'CAD', label: 'Canadian Dollar' }
 ];
 
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'system', label: 'Auto', icon: Monitor },
+  { value: 'dark', label: 'Dark', icon: Moon },
+];
+
 export function Settings({
   currency,
+  theme,
   onClearTransactions,
   onCurrencyChange,
   onImportTransactions,
+  onThemeChange,
   transactions
 }) {
   const fileInputRef = useRef(null);
@@ -149,6 +157,32 @@ export function Settings({
             This changes how amounts are displayed across the app.
           </span>
         </label>
+
+        <div className="mt-3 rounded-3xl bg-slate-50 p-4">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+            Appearance
+          </span>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+              const active = theme === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => onThemeChange(value)}
+                  className={`pb-press flex flex-col items-center gap-1.5 rounded-2xl py-3 text-xs font-bold transition-colors duration-150 ${
+                    active
+                      ? 'bg-indigo text-white shadow-glow'
+                      : 'bg-white text-slate-500 hover:text-ink'
+                  }`}
+                >
+                  <Icon size={18} weight={active ? 'fill' : 'regular'} />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </Card>
 
       <Card>

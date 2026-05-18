@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { animate, motion } from 'framer-motion';
-import { ArrowUpRight, ArrowsClockwise, CalendarDots, Plus } from '@phosphor-icons/react';
+import { ArrowUpRight, ArrowsClockwise, CalendarDots, Fire, Plus } from '@phosphor-icons/react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
@@ -13,6 +13,7 @@ import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { useDashboardReport } from '../../hooks/useReports.js';
 import { formatCurrency } from '../../utils/currency/index.js';
 import { getFrequencyLabel } from '../../services/recurringService.js';
+import { currentStreak } from '../../utils/transactions/index.js';
 
 export function Dashboard({
   insights = [],
@@ -23,6 +24,7 @@ export function Dashboard({
   transactions
 }) {
   const currency = useCurrency();
+  const streak = currentStreak(transactions);
   const {
     categorySpending,
     monthSpending,
@@ -45,7 +47,15 @@ export function Dashboard({
         <div className="pointer-events-none absolute -bottom-8 left-1/4 h-40 w-40 rounded-full bg-sky-400/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-1/3 h-24 w-24 rounded-full bg-coral/8 blur-2xl" />
         <div className="relative">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">Total balance</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">Total balance</p>
+            {streak > 0 && (
+              <span className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
+                <Fire size={12} weight="fill" className="text-orange-300" />
+                {streak}d streak
+              </span>
+            )}
+          </div>
           <p className="mt-3 text-5xl font-bold tracking-tight">
             <AnimatedAmount value={summary.balance} currency={currency} />
           </p>

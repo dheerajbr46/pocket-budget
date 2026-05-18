@@ -17,7 +17,7 @@ export function BottomNav({ activePage, onNavigate, forceMobile }) {
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`relative flex h-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl text-[11px] font-semibold transition-colors duration-150 ${
+                className={`pb-press relative flex h-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl text-[11px] font-semibold transition-colors duration-150 ${
                   isActive ? 'text-white' : 'text-slate-500 hover:text-ink'
                 }`}
                 aria-current={isActive ? 'page' : undefined}

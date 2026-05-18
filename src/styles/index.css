@@ -21,16 +21,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-ink: 226 232 240;
-    --color-paper: 15 23 42;
-    --app-bg: #0f172a;
-    --surface: #1e293b;
-    --surface-muted: #1e293b;
-    --surface-subtle: #334155;
-    --border-color: rgba(255, 255, 255, 0.08);
-  }
+.dark {
+  --color-ink: 226 232 240;
+  --color-paper: 15 23 42;
+  --app-bg: #0f172a;
+  --surface: #1e293b;
+  --surface-muted: #1e293b;
+  --surface-subtle: #334155;
+  --border-color: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -64,6 +62,13 @@ textarea {
 
 button {
   -webkit-tap-highlight-color: transparent;
+}
+
+.pb-press {
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pb-press:active {
+  transform: scale(0.96);
 }
 
 #root {

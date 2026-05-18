@@ -36,7 +36,7 @@ export function AppShell({ activePage, children, currentTitle, onNavigate }) {
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
+                  className={`pb-press relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150 ${
                     isActive ? 'text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-ink dark:text-slate-300 dark:hover:bg-slate-800'
                   }`}
                 >

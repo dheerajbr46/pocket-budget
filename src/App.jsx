@@ -13,6 +13,7 @@ import { CurrencyProvider } from './context/CurrencyContext.jsx';
 import { navItems } from './data/navigation.js';
 import { useTransactions } from './hooks/useTransactions.js';
 import { useBudgetGoals } from './hooks/useBudgetGoals.js';
+import { useTheme } from './hooks/useTheme.js';
 import { Budgets } from './pages/Budgets/index.jsx';
 import { getSmartInsights } from './services/insightService.js';
 import {
@@ -29,6 +30,7 @@ export default function App() {
   const [pendingEditTransactionId, setPendingEditTransactionId] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [currency, setCurrency] = useState(getStoredCurrency);
+  const { theme, setTheme } = useTheme();
   const [saveMessage, setSaveMessage] = useState('');
   const {
     addTransaction,
@@ -205,10 +207,12 @@ export default function App() {
     settings: (
       <Settings
         currency={currency}
+        theme={theme}
         transactions={transactions}
         onClearTransactions={handleClearTransactions}
         onCurrencyChange={setCurrency}
         onImportTransactions={handleImportTransactions}
+        onThemeChange={setTheme}
       />
     )
   };
