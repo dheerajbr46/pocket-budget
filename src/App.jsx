@@ -13,7 +13,9 @@ import { CurrencyProvider } from './context/CurrencyContext.jsx';
 import { navItems } from './data/navigation.js';
 import { useTransactions } from './hooks/useTransactions.js';
 import { useBudgetGoals } from './hooks/useBudgetGoals.js';
+import { useSavingsGoals } from './hooks/useSavingsGoals.js';
 import { Budgets } from './pages/Budgets/index.jsx';
+import { Savings } from './pages/Savings/index.jsx';
 import { getSmartInsights } from './services/insightService.js';
 import {
   clearStoredCategoryLearning,
@@ -45,9 +47,20 @@ export default function App() {
     budgets,
     clearBudgetGoals,
     deleteBudgetGoal,
+    importBudgetGoals,
     saveBudgetGoal,
     updateBudgetGoal
   } = useBudgetGoals(transactions);
+  const {
+    addSavingsContribution,
+    clearSavingsGoals,
+    deleteSavingsGoal,
+    importSavingsGoals,
+    savingsGoals,
+    savingsOverview,
+    subtractSavingsContribution,
+    upsertSavingsGoal
+  } = useSavingsGoals();
 
   useEffect(() => {
     saveStoredCurrency(currency);
@@ -114,9 +127,20 @@ export default function App() {
     setActivePage('dashboard');
   }
 
+  function handleImportAppData(backupPayload) {
+    importTransactions(backupPayload.data.transactions);
+    importBudgetGoals(backupPayload.data.budgets);
+    importSavingsGoals(backupPayload.data.goals);
+    setCurrency(backupPayload.settings.currency);
+    setSaveMessage('Backup imported');
+    setToastMessage('Import completed successfully');
+    setActivePage('dashboard');
+  }
+
   function handleClearTransactions() {
     clearTransactions();
     clearBudgetGoals();
+    clearSavingsGoals();
     clearStoredCategoryLearning();
     setSaveMessage('All data cleared');
     setToastMessage('All data cleared');
@@ -148,8 +172,16 @@ export default function App() {
     [activePage]
   );
   const smartInsights = useMemo(
-    () => getSmartInsights({ budgetOverview, transactions, limit: 4 }),
-    [budgetOverview, transactions]
+    () => getSmartInsights({ budgetOverview, savingsOverview, transactions }),
+    [budgetOverview, savingsOverview, transactions]
+  );
+  const budgetInsights = useMemo(
+    () => getSmartInsights({ budgetOverview, page: 'budgets', savingsOverview, transactions }),
+    [budgetOverview, savingsOverview, transactions]
+  );
+  const goalInsights = useMemo(
+    () => getSmartInsights({ budgetOverview, page: 'goals', savingsOverview, transactions }),
+    [budgetOverview, savingsOverview, transactions]
   );
   const selectedTransaction = useMemo(
     () => transactions.find((transaction) => transaction.id === selectedTransactionId) ?? null,
@@ -165,6 +197,7 @@ export default function App() {
         onCategorySelect={handleCategorySelect}
         onNavigate={handleNavigate}
         onTransactionSelect={handleSelectTransaction}
+        savingsOverview={savingsOverview}
       />
     ),
     add: <AddTransaction onSave={handleAddTransaction} />,
@@ -180,7 +213,8 @@ export default function App() {
     ),
     reports: (
       <Reports
-        insights={smartInsights}
+        budgetOverview={budgetOverview}
+        savingsOverview={savingsOverview}
         transactions={transactions}
         onCategorySelect={handleCategorySelect}
       />
@@ -189,10 +223,21 @@ export default function App() {
       <Budgets
         budgetOverview={budgetOverview}
         budgets={budgets}
-        insights={smartInsights}
+        insights={budgetInsights}
         onDeleteBudget={deleteBudgetGoal}
         onSaveBudget={saveBudgetGoal}
         onUpdateBudget={updateBudgetGoal}
+      />
+    ),
+    savings: (
+      <Savings
+        goals={savingsGoals}
+        insights={goalInsights}
+        savingsOverview={savingsOverview}
+        onAddContribution={addSavingsContribution}
+        onDeleteGoal={deleteSavingsGoal}
+        onSaveGoal={upsertSavingsGoal}
+        onSubtractContribution={subtractSavingsContribution}
       />
     ),
     categoryDetail: (
@@ -206,10 +251,14 @@ export default function App() {
     ),
     settings: (
       <Settings
+        budgets={budgets}
         currency={currency}
+        goals={savingsGoals}
         transactions={transactions}
         onClearTransactions={handleClearTransactions}
         onCurrencyChange={setCurrency}
+        onFeedback={setToastMessage}
+        onImportAppData={handleImportAppData}
         onImportTransactions={handleImportTransactions}
       />
     )

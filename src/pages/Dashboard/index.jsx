@@ -1,4 +1,4 @@
-import { ArrowUpRight, CalendarClock, Plus, Repeat2 } from 'lucide-react';
+import { ArrowUpRight, CalendarClock, Plus, Repeat2, Target } from 'lucide-react';
 import { pressableStyles, transitionPresets } from '../../constants/motion.js';
 import { Button } from '../../components/ui/Button.jsx';
 import { Card } from '../../components/ui/Card.jsx';
@@ -9,6 +9,7 @@ import { FinancialHealthSummary } from '../../components/cards/FinancialHealthSu
 import { useCurrency } from '../../context/CurrencyContext.jsx';
 import { useDashboardReport } from '../../hooks/useReports.js';
 import { formatCurrency } from '../../utils/currency/index.js';
+import { formatShortDate } from '../../utils/formatting/index.js';
 import { getFrequencyLabel } from '../../services/recurringService.js';
 
 export function Dashboard({
@@ -17,6 +18,7 @@ export function Dashboard({
   onNavigate,
   onTransactionSelect,
   saveMessage,
+  savingsOverview,
   transactions
 }) {
   const currency = useCurrency();
@@ -57,6 +59,49 @@ export function Dashboard({
         Add Transaction
       </Button>
 
+      {savingsOverview ? (
+        <Card className="bg-white/80 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Savings Goals</p>
+              <h2 className="mt-1 text-lg font-bold">Goal progress</h2>
+            </div>
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-teal-50 text-mint">
+              <Target size={18} />
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <SavingsMetric label="Saved" value={savingsOverview.totalSaved} />
+            <SavingsMetric label="Remaining" value={savingsOverview.totalRemaining} />
+          </div>
+
+          <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
+            <div className="min-w-0 rounded-2xl bg-slate-50 px-3 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Nearest deadline</p>
+              <p className="mt-1 truncate text-sm font-bold text-ink">
+                {savingsOverview.nearestDeadline
+                  ? `${savingsOverview.nearestDeadline.name} • ${formatShortDate(savingsOverview.nearestDeadline.targetDate)}`
+                  : 'No dated goals'}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 px-3 py-3 text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Done</p>
+              <p className="mt-1 text-sm font-bold text-ink">{savingsOverview.completedCount}</p>
+            </div>
+          </div>
+
+          <div className="mt-3 flex justify-end">
+            <Button
+              onClick={() => onNavigate('savings')}
+              className="shrink-0 rounded-2xl bg-white px-3 py-2 text-sm font-bold text-mint"
+            >
+              View
+            </Button>
+          </div>
+        </Card>
+      ) : null}
+
       <Card className="bg-white/80 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
@@ -81,9 +126,13 @@ export function Dashboard({
             </div>
           </div>
         ) : (
-          <p className="rounded-2xl bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-500">
-            No upcoming recurring payments yet.
-          </p>
+          <div className="rounded-2xl bg-slate-50 px-4 py-4">
+            <p className="text-sm font-bold text-slate-700">No recurring transactions yet</p>
+            <p className="mt-1 text-sm text-slate-500">Create one for rent, subscriptions, or paychecks.</p>
+            <Button onClick={() => onNavigate('add')} className="mt-3 rounded-2xl bg-white px-3 py-2 text-sm font-bold text-mint">
+              Create recurring payment
+            </Button>
+          </div>
         )}
       </Card>
 
@@ -107,9 +156,13 @@ export function Dashboard({
               />
             ))
           ) : (
-            <p className="rounded-3xl bg-white px-4 py-5 text-sm font-semibold text-slate-500 shadow-sm">
-              No transactions yet.
-            </p>
+            <div className="rounded-3xl bg-white px-4 py-5 shadow-sm">
+              <p className="text-sm font-bold text-slate-700">No transactions yet</p>
+              <p className="mt-1 text-sm text-slate-500">Add your first transaction to start seeing activity.</p>
+              <Button onClick={() => onNavigate('add')} className="mt-3 rounded-2xl bg-teal-50 px-3 py-2 text-sm font-bold text-mint">
+                Add your first transaction
+              </Button>
+            </div>
           )}
         </div>
       </section>
@@ -161,6 +214,17 @@ function MiniMetric({ label, value }) {
     <div className="rounded-2xl bg-white/10 p-3">
       <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/55">{label}</p>
       <p className="mt-2 truncate text-sm font-bold text-white">{formatCurrency(value, currency)}</p>
+    </div>
+  );
+}
+
+function SavingsMetric({ label, value }) {
+  const currency = useCurrency();
+
+  return (
+    <div className="rounded-2xl bg-slate-50 p-3">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className="mt-1 truncate text-sm font-bold text-ink">{formatCurrency(value, currency)}</p>
     </div>
   );
 }

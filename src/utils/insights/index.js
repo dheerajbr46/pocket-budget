@@ -176,6 +176,52 @@ export function generateBudgetInsights(budgetOverview) {
     );
 }
 
+export function generateSavingsInsights(savingsOverview) {
+  if (!savingsOverview?.progressItems?.length) {
+    return [];
+  }
+
+  return savingsOverview.progressItems.slice(0, 4).map((goal) => {
+    if (goal.status === 'completed') {
+      return createInsight({
+        id: `savings-completed-${goal.id}`,
+        message: `${goal.name} is fully funded.`,
+        priority: 74,
+        title: 'Savings goal complete',
+        type: 'positive'
+      });
+    }
+
+    if (goal.progressPercentage >= 80) {
+      return createInsight({
+        id: `savings-close-${goal.id}`,
+        message: `${goal.name} is close to completion.`,
+        priority: 64,
+        title: 'Almost there',
+        type: 'positive'
+      });
+    }
+
+    if (goal.status === 'behind') {
+      return createInsight({
+        id: `savings-behind-${goal.id}`,
+        message: `You need $${Math.round(goal.remainingAmount)} more to finish this goal.`,
+        priority: 77,
+        title: 'Goal needs attention',
+        type: 'warning'
+      });
+    }
+
+    return createInsight({
+      id: `savings-progress-${goal.id}`,
+      message: `You are ${goal.progressPercentage}% toward your ${goal.name}.`,
+      priority: 39,
+      title: 'Savings progress',
+      type: 'neutral'
+    });
+  });
+}
+
 function normalizeRecurringMonthlyAmount(transaction) {
   if (transaction.recurrenceFrequency === 'weekly') {
     return (transaction.amount * 52) / 12;
@@ -315,7 +361,16 @@ export function prioritizeInsights(insights, limit = 4) {
   });
 
   return [...uniqueInsights.values()]
-    .sort((firstInsight, secondInsight) => secondInsight.priority - firstInsight.priority)
+    .sort((firstInsight, secondInsight) => {
+      const typeRank = { danger: 0, warning: 1, positive: 2, neutral: 3 };
+      const typeDifference = (typeRank[firstInsight.type] ?? typeRank.neutral) - (typeRank[secondInsight.type] ?? typeRank.neutral);
+
+      if (typeDifference !== 0) {
+        return typeDifference;
+      }
+
+      return secondInsight.priority - firstInsight.priority;
+    })
     .slice(0, limit);
 }
 
@@ -323,3 +378,4 @@ export function prioritizeInsights(insights, limit = 4) {
 // TODO: Add weekly digest and monthly summary generation from this same local rules engine.
 // TODO: Add optional AI-generated explanations later, behind a privacy-first user setting.
 // TODO: Add merchant recognition and recurring transaction editing modes for single occurrence vs entire series.
+// TODO: Add savings goal reminders and auto-contribute insight rules.

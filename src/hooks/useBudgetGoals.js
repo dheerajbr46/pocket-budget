@@ -38,11 +38,16 @@ export function useBudgetGoals(transactions) {
     setBudgets([]);
   }
 
+  function importBudgetGoals(importedBudgets) {
+    setBudgets(importedBudgets);
+  }
+
   return {
     budgets,
     budgetOverview: overview,
     clearBudgetGoals: clearAllBudgetGoals,
     deleteBudgetGoal: removeBudgetGoal,
+    importBudgetGoals,
     saveBudgetGoal,
     updateBudgetGoal: editBudgetGoal
   };

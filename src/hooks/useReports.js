@@ -2,6 +2,9 @@ import { useMemo } from 'react';
 import {
   getMonthSpending,
   getMonthlyCategorySpending,
+  getDonutCategorySegments,
+  getMiniTrendReport,
+  getMonthlySnapshotReport,
   getPeriodReport,
   getTodaySummary,
   getWeekSpending,
@@ -9,6 +12,9 @@ import {
 } from '../services/reportService.js';
 import { getRecentTransactions } from '../services/transactionService.js';
 import { getUpcomingTimeline } from '../services/upcomingTimelineService.js';
+import { getGroupedReportInsights } from '../services/adaptiveInsightService.js';
+import { getMonthlyInsights } from '../services/monthlyInsightService.js';
+import { getWeeklyInsights } from '../services/weeklyInsightService.js';
 
 export function useDashboardReport(transactions) {
   return useMemo(
@@ -25,12 +31,29 @@ export function useDashboardReport(transactions) {
   );
 }
 
-export function useReports(transactions) {
+export function useReports(transactions, budgetOverview, savingsOverview) {
   return useMemo(
-    () => ({
-      monthlyReport: getPeriodReport(transactions, 'month'),
-      weeklyReport: getPeriodReport(transactions, 'week')
-    }),
-    [transactions]
+    () => {
+      const monthlySnapshot = getMonthlySnapshotReport(transactions);
+      const miniTrends = getMiniTrendReport(transactions, budgetOverview);
+      const monthlyInsights = getMonthlyInsights({
+        budgetOverview,
+        monthlySnapshot,
+        savingsOverview
+      });
+      const weeklyAwareness = getWeeklyInsights(miniTrends);
+
+      return {
+        donutBreakdown: getDonutCategorySegments(monthlySnapshot.categories),
+        miniTrends,
+        monthlyReport: getPeriodReport(transactions, 'month'),
+        monthlyInsights,
+        monthlySnapshot,
+        reportInsights: getGroupedReportInsights(monthlyInsights, weeklyAwareness.insights),
+        weeklyAwareness,
+        weeklyReport: getPeriodReport(transactions, 'week')
+      };
+    },
+    [budgetOverview, savingsOverview, transactions]
   );
 }

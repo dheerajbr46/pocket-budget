@@ -1,17 +1,10 @@
-import {
-  generateBudgetInsights,
-  generateRecurringInsights,
-  generateTransactionInsights,
-  prioritizeInsights
-} from '../utils/insights/index.js';
+import { getAdaptiveInsightsForPage } from './adaptiveInsightService.js';
 
-export function getSmartInsights({ budgetOverview, limit = 4, transactions }) {
-  return prioritizeInsights(
-    [
-      ...generateBudgetInsights(budgetOverview),
-      ...generateRecurringInsights(transactions),
-      ...generateTransactionInsights(transactions)
-    ],
-    limit
-  );
+export function getSmartInsights({ budgetOverview, page = 'dashboard', savingsOverview, transactions }) {
+  return getAdaptiveInsightsForPage({
+    budgetOverview,
+    page,
+    savingsOverview,
+    transactions
+  });
 }

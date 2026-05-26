@@ -1,13 +1,11 @@
 import { areValidBudgetGoals } from '../budgets/index.js';
-
-const TRANSACTIONS_STORAGE_KEY = 'pocket-budget.transactions';
-const CURRENCY_STORAGE_KEY = 'pocket-budget.currency';
-const BUDGET_GOALS_STORAGE_KEY = 'pocket-budget.budget-goals';
-const CATEGORY_LEARNING_STORAGE_KEY = 'pocket-budget.category-learning';
-
-function canUseLocalStorage() {
-  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
-}
+import { areValidSavingsGoals } from '../savings/index.js';
+import {
+  readStorageValue,
+  removeStorageValue,
+  storageKeys,
+  writeStorageValue
+} from '../../services/storageService.js';
 
 export function isValidTransaction(transaction) {
   const hasValidRecurringFields =
@@ -53,49 +51,19 @@ export function areValidTransactions(transactions) {
 }
 
 export function getLocalStorageItem(key, fallbackValue = null) {
-  if (!canUseLocalStorage()) {
-    return fallbackValue;
-  }
-
-  try {
-    const storedValue = window.localStorage.getItem(key);
-    return storedValue ? JSON.parse(storedValue) : fallbackValue;
-  } catch (error) {
-    console.warn(`Unable to read ${key} from LocalStorage.`, error);
-    return fallbackValue;
-  }
+  return readStorageValue(key, fallbackValue);
 }
 
 export function saveLocalStorageItem(key, value) {
-  if (!canUseLocalStorage()) {
-    return false;
-  }
-
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (error) {
-    console.warn(`Unable to save ${key} to LocalStorage.`, error);
-    return false;
-  }
+  return writeStorageValue(key, value);
 }
 
 export function removeLocalStorageItem(key) {
-  if (!canUseLocalStorage()) {
-    return false;
-  }
-
-  try {
-    window.localStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    console.warn(`Unable to remove ${key} from LocalStorage.`, error);
-    return false;
-  }
+  return removeStorageValue(key);
 }
 
 export function getStoredTransactions() {
-  const parsedValue = getLocalStorageItem(TRANSACTIONS_STORAGE_KEY, null);
+  const parsedValue = getLocalStorageItem(storageKeys.transactions, null);
 
   if (!parsedValue) {
     return null;
@@ -110,42 +78,23 @@ export function getStoredTransactions() {
 }
 
 export function saveStoredTransactions(transactions) {
-  return saveLocalStorageItem(TRANSACTIONS_STORAGE_KEY, transactions);
+  return saveLocalStorageItem(storageKeys.transactions, transactions);
 }
 
 export function clearStoredTransactions() {
-  return removeLocalStorageItem(TRANSACTIONS_STORAGE_KEY);
+  return removeLocalStorageItem(storageKeys.transactions);
 }
 
 export function getStoredCurrency() {
-  if (!canUseLocalStorage()) {
-    return 'USD';
-  }
-
-  try {
-    return window.localStorage.getItem(CURRENCY_STORAGE_KEY) || 'USD';
-  } catch (error) {
-    console.warn('Unable to read stored currency.', error);
-    return 'USD';
-  }
+  return readStorageValue(storageKeys.currency, 'USD');
 }
 
 export function saveStoredCurrency(currency) {
-  if (!canUseLocalStorage()) {
-    return false;
-  }
-
-  try {
-    window.localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
-    return true;
-  } catch (error) {
-    console.warn('Unable to save currency setting.', error);
-    return false;
-  }
+  return writeStorageValue(storageKeys.currency, currency);
 }
 
 export function getStoredBudgetGoals() {
-  const parsedValue = getLocalStorageItem(BUDGET_GOALS_STORAGE_KEY, null);
+  const parsedValue = getLocalStorageItem(storageKeys.budgets, null);
 
   if (!parsedValue) {
     return null;
@@ -160,15 +109,38 @@ export function getStoredBudgetGoals() {
 }
 
 export function saveStoredBudgetGoals(budgets) {
-  return saveLocalStorageItem(BUDGET_GOALS_STORAGE_KEY, budgets);
+  return saveLocalStorageItem(storageKeys.budgets, budgets);
 }
 
 export function clearStoredBudgetGoals() {
-  return removeLocalStorageItem(BUDGET_GOALS_STORAGE_KEY);
+  return removeLocalStorageItem(storageKeys.budgets);
+}
+
+export function getStoredSavingsGoals() {
+  const parsedValue = getLocalStorageItem(storageKeys.savingsGoals, null);
+
+  if (!parsedValue) {
+    return null;
+  }
+
+  if (!areValidSavingsGoals(parsedValue)) {
+    clearStoredSavingsGoals();
+    return null;
+  }
+
+  return parsedValue;
+}
+
+export function saveStoredSavingsGoals(goals) {
+  return saveLocalStorageItem(storageKeys.savingsGoals, goals);
+}
+
+export function clearStoredSavingsGoals() {
+  return removeLocalStorageItem(storageKeys.savingsGoals);
 }
 
 export function getStoredCategoryLearning() {
-  const parsedValue = getLocalStorageItem(CATEGORY_LEARNING_STORAGE_KEY, {});
+  const parsedValue = getLocalStorageItem(storageKeys.categoryLearning, {});
 
   if (!parsedValue || typeof parsedValue !== 'object' || Array.isArray(parsedValue)) {
     clearStoredCategoryLearning();
@@ -179,9 +151,9 @@ export function getStoredCategoryLearning() {
 }
 
 export function saveStoredCategoryLearning(learningMap) {
-  return saveLocalStorageItem(CATEGORY_LEARNING_STORAGE_KEY, learningMap);
+  return saveLocalStorageItem(storageKeys.categoryLearning, learningMap);
 }
 
 export function clearStoredCategoryLearning() {
-  return removeLocalStorageItem(CATEGORY_LEARNING_STORAGE_KEY);
+  return removeLocalStorageItem(storageKeys.categoryLearning);
 }

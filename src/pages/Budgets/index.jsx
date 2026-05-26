@@ -92,6 +92,8 @@ export function Budgets({
           <EmptyState
             title="No budget goals yet"
             description="Create a monthly category budget to start tracking progress."
+            actionLabel="Create your first budget"
+            onAction={handleNewBudget}
           />
         )}
       </section>

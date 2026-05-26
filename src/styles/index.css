@@ -99,6 +99,23 @@ button {
   }
 }
 
+@keyframes goal-complete {
+  0% {
+    transform: scale(0.94);
+    box-shadow: 0 0 0 0 rgb(20 184 166 / 0.28);
+  }
+
+  70% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 9px rgb(20 184 166 / 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgb(20 184 166 / 0);
+  }
+}
+
 .animate-page-in {
   animation: page-in 220ms ease-out;
 }
@@ -117,6 +134,10 @@ button {
 
 .animate-soft-slide-in {
   animation: soft-slide-in 220ms ease-out both;
+}
+
+.animate-goal-complete {
+  animation: goal-complete 520ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
